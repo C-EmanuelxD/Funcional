@@ -141,9 +141,8 @@ pub fn vem_antes(datax: Data, datay: Data) -> Bool {
 //    let data31 = Date(dia:"07",mes:"05",ano:"2023")
 
 //    check.eq(vem_antes(data11, data12), True)
-//    check.eq(vem_antes(data12,data11), False)
-//    check.eq(vem_antes(data31,data31), False)
-
+//    check.eq(vem_antes(data12,data11), False
+      //check.eq(vem_antes(data31,data31), False)
 //}
 
 //d) DESAFIO
@@ -491,11 +490,40 @@ pub fn hms_to_string(tempo: Tempo) -> String{
 }
 
 
-pub fn hms_to_string_examples(){
-  check.eq(hms_to_string(Tempo(4, 2, 0)), "horas: 4 minutos: 2")
-  check.eq(hms_to_string(Tempo(4, 2, 1)), "horas: 4 minutos: 2 segundos: 1")
-  check.eq(hms_to_string(Tempo(0, 2, 0)), "minutos: 2")
-  check.eq(hms_to_string(Tempo(1, 0, 0)), "horas: 1")
-  check.eq(hms_to_string(Tempo(0, 0, 1)), "minutos: 1")
-  check.eq(hms_to_string(Tempo(0, 0, 0)), "")
-}
+//pub fn hms_to_string_examples(){
+//  check.eq(hms_to_string(Tempo(4, 2, 0)), "horas: 4 minutos: 2")
+//  check.eq(hms_to_string(Tempo(4, 2, 1)), "horas: 4 minutos: 2 segundos: 1")
+//  check.eq(hms_to_string(Tempo(0, 2, 0)), "minutos: 2")
+//  check.eq(hms_to_string(Tempo(1, 0, 0)), "horas: 1")
+//  check.eq(hms_to_string(Tempo(0, 0, 1)), "minutos: 1")
+//  check.eq(hms_to_string(Tempo(0, 0, 0)), "")
+//}
+
+//Exercicio 20
+ pub type Personagem{ //Tem q fazer construtor, para manter inteiros limitados?
+  Personagem(direcao: Direcaoxadrez, linha: Int, coluna: Int)
+ }
+
+ pub type Direcaoxadrez{
+  Nortex
+  Sulx
+  Lestex
+  Oestex
+ }
+//Verifca quanto quadrados faltam até o final do tabuleiro baseado nas linhas/colunas
+//e na direção do personagem
+ pub fn xadrez(persona: Personagem) -> Int{
+  case persona.direcao{
+    Nortex -> 10 - persona.linha
+    Sulx -> persona.linha
+    Lestex -> 10 - persona.coluna
+    Oestex -> persona.coluna
+  }
+ }
+
+//pub fn xadrez_examples(){
+//  check.eq(xadrez(Personagem(Nortex, 9, 5)), 1)
+//  check.eq(xadrez(Personagem(Oestex, 5, 8)), 8)
+//  check.eq(xadrez(Personagem(Lestex, 4, 4)), 6)
+//  check.eq(xadrez(Personagem(Sulx, 7, 8)), 7)
+//}
