@@ -63,16 +63,54 @@ pub fn main_examples(){
 ///A função recebe uma lista de strings que são os resultados, as strings são divididas
 /// e cada campo é inserido dentro de um *Resultado*, esses tipos são inseridos
 /// dentro de uma lista de *Resultados* que é o retorno final da função.
-pub fn cria_resultado(lst: List(String)) -> List(Result(Resultado, Erros)) {
+pub fn cria_resultado(lst: List(String)) -> Result(List(Resultado), Erros) {
   case lst{
-    [] -> []
+    [] -> Ok([])
     [primeiro, ..resto] -> {
-      [string_to_resultado(string.split(primeiro, " ")), ..cria_resultado(resto)]
+      case cria_resultado(resto){
+        Ok(a) -> case string_to_resultado(string.split(primeiro, " ")){
+          Ok(b) -> Ok([b, ..a])
+          Error(c) -> Error(c)
+        }
+        Error(a) -> Error(a)
+      }
+    }
+  }
+}
+
+pub fn cria_resultado_examples(){
+  check.eq(cria_resultado(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1"]), Ok([Resultado("Sao-Paulo", Gol(1), "Atletico-MG", Gol(2)), 
+                                                                                        Resultado("Flamengo", Gol(2), "Palmeiras", Gol(1))]))
+
+  check.eq(cria_resultado(["Sao-Paulo -1 Atletico-MG 2", "Flamengo 2 Palmeiras 1"]), Error(PlacarInvalido))
+  check.eq(cria_resultado(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Flamengo 1"]), Error(TimeDuplicado))
+  check.eq(cria_resultado(["Flamengo 2 Palmeiras 1", "Flamengo 2 Palmeiras 1"]), Error(JogoDuplicado))
+  check.eq(cria_resultado(["2 1", " 2 1"]), Error(CamposIncompletos))
+  check.eq(cria_resultado(["", ""]), Error(CamposIncompletos))
+}
+
+//Função que compara um elemento de uma lista de resultados com os outros elementos da lista
+pub fn compara_com_resto(lst: List(Resultado), res: Resultado) -> Bool{
+  case lst{
+    [] -> False
+    [primeiro, ..resto] -> {
+      case res == primeiro{
+        True -> True
+        False -> compara_com_resto(resto, res)
+      }
     }
   }
 }
 
 
+pub fn compara_com_resto_examples(){
+  let assert Ok(gol1) = new_gol(4)
+  let assert Ok(gol2) = new_gol(3)
+  let assert Ok(gol3) = new_gol(5)
+  let assert Ok(gol4) = new_gol (7)
+
+  check.eq(compara_com_resto([Resultado("Flamengo", gol2, "Santos", gol1), Resultado("Flamengo", gol3, "Botafogo", gol4)], Resultado("Flamengo", gol1, "Santos", gol1)), True)
+}
 
 /// REVISA ISSO******************************************************************************************************************************************************************************
 ///Função auxiliar à cria_resultado que retorna a lista de String dada em forma de Resultados.
