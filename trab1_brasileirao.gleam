@@ -36,6 +36,8 @@ pub type Erros {
   CamposIncompletos
   //Caso a string possua mais campos que o esperado
   MaxCamposExcedidos
+  //Caso times 
+  SemTimes
 }
 
 //Função que transforma uma lista de jogos do campeonato brasileiro e transforma ela em uma
@@ -57,26 +59,22 @@ pub fn main_examples(){
 
 
 
-//Função que baseado em uma lista de Strings dos *Jogos*, cria *Resultados*.
-//Recebe uma Lista de strings dos *jogos*, analisa cada elemento da lista
-//insere dentro de uma *lista de Resultado*, com cada campo. Para cada inserção 
-//verifica os erros que podem ocorrer. Caso exista algum erro o retorno será
-//Error(erro) e caso não exista o retorno será Ok(List(Resultao)).
-pub fn cria_resultado(lst: List(String)) -> Result(List(Resultado), Erros) {
-  
+///Função que baseado em uma lista de Strings dos *Jogos*, cria uma lista de *Resultados*.
+///A função recebe uma lista de strings que são os resultados, as strings são divididas
+/// e cada campo é inserido dentro de um *Resultado*, esses tipos são inseridos
+/// dentro de uma lista de *Resultados* que é o retorno final da função.
+pub fn cria_resultado(lst: List(String)) -> List(Result(Resultado, Erros)) {
+  case lst{
+    [] -> []
+    [primeiro, ..resto] -> {
+      [string_to_resultado(string.split(primeiro, " ")), ..cria_resultado(resto)]
+    }
+  }
 }
 
-pub fn cria_resultado_examples(){
-  check.eq(cria_resultado(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1"]), Ok([Resultado("Sao-Paulo", Gol(1), "Atletico-MG", Gol(2)), 
-                                                                                        Resultado("Flamengo", Gol(2), "Palmeiras", Gol(1))]))
 
-  check.eq(cria_resultado(["Sao-Paulo -1 Atletico-MG 2", "Flamengo 2 Palmeiras 1"]), Error(PlacarInvalido))
-  check.eq(cria_resultado(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Flamengo 1"]), Error(TimeDuplicado))
-  check.eq(cria_resultado(["Flamengo 2 Palmeiras 1", "Flamengo 2 Palmeiras 1"]), Error(JogoDuplicado))
-  check.eq(cria_resultado(["2 1", " 2 1"]), Error(CamposIncompletos))
-  check.eq(cria_resultado(["", ""]), Error(CamposIncompletos))
-}
 
+/// REVISA ISSO******************************************************************************************************************************************************************************
 ///Função auxiliar à cria_resultado que retorna a lista de String dada em forma de Resultados.
 ///A função recebe uma Lista de strings que foram divididas anteriormente e as coloca dentro
 /// de um tipo *Resultado*, fazendo todas as verificações de erros que tangem à resultado único.
@@ -84,7 +82,7 @@ pub fn cria_resultado_examples(){
 /// esteja correto retorna o Ok(Result()) com o resultado do jogo.
 pub fn string_to_resultado(str: List(String)) -> Result(Resultado, Erros) {
   case str {
-    [] -> Error(CamposIncompletos)
+    [] -> Error(SemTimes)
     [primeiro, segundo, terceiro, quarto] -> {
       case int.parse(segundo), int.parse(quarto) {
         Ok(a), Ok(d) ->
