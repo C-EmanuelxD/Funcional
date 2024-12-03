@@ -52,6 +52,11 @@ pub fn main(lst_jogos: List(String)) -> List(String) {
   todo
 }
 
+
+
+pub fn cria_result_time()
+
+
 pub fn main_examples(){
   check.eq(main(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1", "Palmeiras 0 Sao-Paulo 0", "Atletico-MG 1 Flamengo 2"]), ["Flamengo 6 2 2","Atletico-MG 3 1 0", 
                                                                                                                                   "Palmeiras 1 0 -1", "Sao-Paulo 1 0 -1"])
@@ -69,7 +74,10 @@ pub fn cria_resultado(lst: List(String)) -> Result(List(Resultado), Erros) {
     [primeiro, ..resto] -> {
       case cria_resultado(resto){
         Ok(a) -> case string_to_resultado(string.split(primeiro, " ")){
-          Ok(b) -> Ok([b, ..a])
+          Ok(b) -> case compara_com_resto(a, b){
+            True -> Error(JogoDuplicado)
+            False -> Ok([b, ..a])
+          }
           Error(c) -> Error(c)
         }
         Error(a) -> Error(a)
@@ -109,7 +117,7 @@ pub fn compara_com_resto_examples(){
   let assert Ok(gol3) = new_gol(5)
   let assert Ok(gol4) = new_gol (7)
 
-  check.eq(compara_com_resto([Resultado("Flamengo", gol2, "Santos", gol1), Resultado("Flamengo", gol3, "Botafogo", gol4)], Resultado("Flamengo", gol1, "Santos", gol1)), True)
+  check.eq(compara_com_resto([Resultado("Flamengo", gol2, "Santos", gol1), Resultado("Flamengo", gol3, "Botafogo", gol4)], Resultado("Flamengo", gol2, "Santos", gol1)), True)
 }
 
 /// REVISA ISSO******************************************************************************************************************************************************************************
