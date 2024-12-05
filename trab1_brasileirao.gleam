@@ -1,5 +1,4 @@
 import gleam/int
-import gleam/list
 import gleam/string
 import gleam/order
 import sgleam/check
@@ -53,6 +52,8 @@ pub type Erros {
   CamposIncompletos
   //Caso a string possua mais campos que o esperado
   MaxCamposExcedidos
+  //Caso a lista de jogos inicial esteja vazia
+  ListaVazia
 }
 
 //Função que transforma uma lista de jogos do campeonato brasileiro e transforma ela em uma
@@ -64,9 +65,14 @@ pub type Erros {
 //Essa lista deve ser ordenada com prioridades sendo: Pontuação, número e vitórias, Saldo de gols e 
 //por fim Ordem alfabética dos nomes dos times.
 pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(Desempenho), Erros) {
-  case cria_resultado(lst_jogos){
-    Ok(lst) -> Ok(ordena_lista_desempenhos(mescla_desempenho(cria_lista_desempenho(lst))))
-    Error(a) -> Error(a)
+  case lst_jogos == []{
+    True -> Error(ListaVazia)
+    False -> {
+      case cria_resultado(lst_jogos){
+      Ok(lst) -> Ok(ordena_lista_desempenhos(mescla_desempenho(cria_lista_desempenho(lst))))
+      Error(a) -> Error(a)
+      }
+    }
   }
   
 
@@ -75,7 +81,7 @@ pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(Desempenho), Err
 //Fazer case para chamada da cria_resultado, para tirar do Ok e depois chamar a calcula desempenho
 
 //pub fn main_examples(){
-//  check.eq(main(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1", "Palmeiras 0 Sao-Paulo 0", "Atletico-MG 1 Flamengo 2"]), ["Flamengo 6 2 2","Atletico-MG 3 1 0", 
+//  check.eq(main_brasileirao(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1", "Palmeiras 0 Sao-Paulo 0", "Atletico-MG 1 Flamengo 2"]), ["Flamengo 6 2 2","Atletico-MG 3 1 0", 
 //                                                                                                                                 "Palmeiras 1 0 -1", "Sao-Paulo 1 0 -1"])
 //}
 
