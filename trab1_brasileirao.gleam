@@ -284,37 +284,27 @@ pub fn inserir_lista(
   case lst {
     [] -> [desem]
     [primeiro, ..resto] -> {
-      case desem.pontos > primeiro.pontos {
-        True -> [desem, primeiro, ..resto]
-        False -> {
-          case desem.pontos == primeiro.pontos {
-            True ->
-              case desem.vitorias > primeiro.vitorias {
-                True -> [desem, primeiro, ..resto]
-                False ->
-                  case desem.saldo_gol > primeiro.saldo_gol {
-                    True -> [desem, primeiro, ..resto]
-                    False ->
-                      case desem.saldo_gol == primeiro.saldo_gol {
-                        True ->
-                          case string.compare(desem.time, primeiro.time) {
-                            order.Eq -> [
-                              primeiro,
-                              ..inserir_lista(resto, desem)
-                            ]
-                            order.Lt -> [desem, primeiro, ..resto]
-                            order.Gt -> [
-                              primeiro,
-                              ..inserir_lista(resto, desem)
-                            ]
-                          }
-                        False -> [primeiro, ..inserir_lista(resto, desem)]
-                      }
-                  }
-              }
-            False -> [primeiro, ..inserir_lista(resto, desem)]
-          }
-        }
+      case
+        { desem.pontos > primeiro.pontos },
+        { desem.pontos == primeiro.pontos },
+        { desem.vitorias > primeiro.vitorias },
+        { desem.saldo_gol > primeiro.saldo_gol },
+        { desem.saldo_gol == primeiro.saldo_gol },
+        { string.compare(desem.time, primeiro.time) }
+      {
+        True, _, _, _, _, _ -> [desem, primeiro, ..resto]
+        False, True, True, _, _, _ -> [desem, primeiro, ..resto]
+        False, True, False, True, _, _ -> [desem, primeiro, ..resto]
+        False, True, False, False, True, order.Lt -> [desem, primeiro, ..resto]
+        False, True, False, False, True, order.Eq -> [
+          primeiro,
+          ..inserir_lista(resto, desem)
+        ]
+        False, True, False, False, True, order.Gt -> [
+          primeiro,
+          ..inserir_lista(resto, desem)
+        ]
+        _, _, _, _, _, _ -> [primeiro, ..inserir_lista(resto, desem)]
       }
     }
   }
