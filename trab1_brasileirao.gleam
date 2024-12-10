@@ -107,12 +107,12 @@ pub fn main_examples() {
       "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
     ]),
     Ok([
-      "Palmeiras 9 3 6", "Bahia 6 2 3", "Corinthians 6 2 4",
-      "Internacional 6 2 4", "Vasco 6 2 3", "Fortaleza 6 2 1", "Flamengo 6 2 -1",
+      "Palmeiras 9 3 6", "Corinthians 6 2 4", "Internacional 6 2 4",
+      "Bahia 6 2 3", "Vasco 6 2 3", "Fortaleza 6 2 1", "Flamengo 6 2 -1",
       "Atletico 3 1 1", "Bragantino 3 1 1", "Cruzeiro 3 1 0", "Sao-Paulo 3 1 -1",
-      "Botafogo 3 1 -8", "Athletico 0 0 -1", "Criciuma 0 0 -1", "Vitoria 0 0 -1",
-      "Atletico-Go 0 0 -2", "Cuiaba 0 0 -1", "Fluminense 0 0 -2",
-      "Gremio 0 0 -3", "Juventude 0 0 -2",
+      "Botafogo 3 1 -8", "Athletico 0 0 -1", "Criciuma 0 0 -1", "Cuiaba 0 0 -1",
+      "Vitoria 0 0 -1", "Atletico-Go 0 0 -2", "Fluminense 0 0 -2",
+      "Juventude 0 0 -2", "Gremio 0 0 -3",
     ]),
   )
   check.eq(
@@ -190,7 +190,7 @@ pub fn main_examples() {
     ]),
     Error(JogoDuplicado),
   )
-    check.eq(
+  check.eq(
     main_brasileirao([
       "Botafogo 1 Flamengo 2", "Palmeiras 4 Botafogo 0",
       "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
@@ -295,10 +295,20 @@ pub fn inserir_lista(
                   case desem.saldo_gol > primeiro.saldo_gol {
                     True -> [desem, primeiro, ..resto]
                     False ->
-                      case string.compare(desem.time, primeiro.time) {
-                        order.Eq -> [primeiro, ..inserir_lista(resto, desem)]
-                        order.Lt -> [desem, primeiro, ..resto]
-                        order.Gt -> [primeiro, ..inserir_lista(resto, desem)]
+                      case desem.saldo_gol == primeiro.saldo_gol {
+                        True ->
+                          case string.compare(desem.time, primeiro.time) {
+                            order.Eq -> [
+                              primeiro,
+                              ..inserir_lista(resto, desem)
+                            ]
+                            order.Lt -> [desem, primeiro, ..resto]
+                            order.Gt -> [
+                              primeiro,
+                              ..inserir_lista(resto, desem)
+                            ]
+                          }
+                        False -> [primeiro, ..inserir_lista(resto, desem)]
                       }
                   }
               }
@@ -536,7 +546,6 @@ pub fn mescla_desempenho_unico_examples() {
       Desempenho("Botafogo", 3, 1, 2),
     ],
   )
-  
 }
 
 //Função para eliminação de repetições dentro de uma lista de desempenhos, deixando apenas os 
