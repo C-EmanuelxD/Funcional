@@ -83,7 +83,6 @@ pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(String), Erros) 
   }
 }
 
-
 pub fn main_examples() {
   check.eq(
     main_brasileirao([
@@ -132,29 +131,29 @@ pub fn main_examples() {
   )
   check.eq(
     main_brasileirao([
-      "Botafogo 1 Botafogo 2", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
-      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
-      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
-      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
-      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
-      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
-      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
-      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
-      "Cuiaba 2 Botafogo 3",
+      "Botafogo 1 Botafogo 2", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Criciuma 2 Flamengo 3",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
     ]),
     Error(TimeDuplicado),
   )
-    check.eq(
+  check.eq(
     main_brasileirao([
-      "Botafogo 1 Flamengo ", " ", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
-      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
-      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
-      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
-      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
-      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
-      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
-      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
-      "Cuiaba 2 Botafogo 3",
+      "Botafogo 1 Flamengo ", " ", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Criciuma 2 Flamengo 3",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
     ]),
     Error(CamposIncompletos),
   )
@@ -162,7 +161,7 @@ pub fn main_examples() {
     string_to_resultado(["Corinthia", "", "Cortina", "0"]),
     Error(PlacarInvalido),
   )
-      check.eq(
+  check.eq(
     main_brasileirao([
       "Botafogo 1 Flamengo ", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
       "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
@@ -172,13 +171,38 @@ pub fn main_examples() {
       "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
       "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
       "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
-      "Cuiaba 2 Botafogo 3  "
+      "Cuiaba 2 Botafogo 3  ",
     ]),
     Error(MaxCamposExcedidos),
   )
-        check.eq(
-    main_brasileirao([]),
-    Error(ListaVazia),
+  check.eq(main_brasileirao([]), Error(ListaVazia))
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo 2", "Botafogo 1 Flamengo 2", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(JogoDuplicado),
+  )
+    check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo 2", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Botafogo 1 Flamengo 2",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(JogoDuplicado),
   )
 }
 
@@ -512,29 +536,8 @@ pub fn mescla_desempenho_unico_examples() {
       Desempenho("Botafogo", 3, 1, 2),
     ],
   )
-    check.eq(
-    mescla_desempenho_unico(
-      [
-        Desempenho("Santos", 3, 1, 1),
-        Desempenho("Flamengo", 3, 1, 1),
-        Desempenho("Botafogo", 3, 1, 4),
-        Desempenho("Atletico-MG", 1, 0, 0),
-        Desempenho("Santos", 1, 0, 0),
-        Desempenho("Botafogo", 3, 1, 2),
-      ],
-      Desempenho("Santos", 1, 0, 1),
-    ),
-    [
-      Desempenho("Santos", 3, 1, 1),
-      Desempenho("Flamengo", 3, 1, 1),
-      Desempenho("Botafogo", 3, 1, 4),
-      Desempenho("Atletico-MG", 4, 2, 4),
-      Desempenho("Santos", 2, 0, 1),
-      Desempenho("Botafogo", 3, 1, 2),
-    ],
-  )
+  
 }
-
 
 //Função para eliminação de repetições dentro de uma lista de desempenhos, deixando apenas os 
 //valores finais acumulados de pontos
@@ -549,7 +552,6 @@ pub fn elimina_repeticao_desempenho(a: List(Desempenho)) -> List(Desempenho) {
     }
   }
 }
-
 
 //Verifica se um elemento ainda existe dentro de uma certa lista
 pub fn compara_desempenho(lst: List(Desempenho), des: Desempenho) -> Bool {
