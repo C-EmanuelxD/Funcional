@@ -1,6 +1,6 @@
 import gleam/int
-import gleam/string
 import gleam/order
+import gleam/string
 import sgleam/check
 
 pub type Resultado {
@@ -64,82 +64,220 @@ pub type Erros {
 //Vitória: 3 pontos, Derrota: 0 Pontos) dos times e o número de vitórias totais de cada time.
 //Essa lista deve ser ordenada com prioridades sendo: Pontuação, número e vitórias, Saldo de gols e 
 //por fim Ordem alfabética dos nomes dos times.
-pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(Desempenho), Erros) {
-  case lst_jogos == []{
+pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(String), Erros) {
+  case lst_jogos == [] {
     True -> Error(ListaVazia)
     False -> {
-      case cria_resultado(lst_jogos){
-      Ok(lst) -> Ok(ordena_lista_desempenhos(mescla_desempenho(cria_lista_desempenho(lst))))
-      Error(a) -> Error(a)
+      case cria_resultado(lst_jogos) {
+        Ok(lst) ->
+          Ok(
+            desempenho_to_string(
+              ordena_lista_desempenhos(
+                mescla_desempenho(cria_lista_desempenho(lst)),
+              ),
+            ),
+          )
+        Error(a) -> Error(a)
       }
     }
   }
-  
-
-
 }
-//Fazer case para chamada da cria_resultado, para tirar do Ok e depois chamar a calcula desempenho
 
-//pub fn main_examples(){
-//  check.eq(main_brasileirao(["Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1", "Palmeiras 0 Sao-Paulo 0", "Atletico-MG 1 Flamengo 2"]), ["Flamengo 6 2 2","Atletico-MG 3 1 0", 
-//                                                                                                                                 "Palmeiras 1 0 -1", "Sao-Paulo 1 0 -1"])
-//}
+
+pub fn main_examples() {
+  check.eq(
+    main_brasileirao([
+      "Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1",
+      "Palmeiras 0 Sao-Paulo 0", "Atletico-MG 1 Flamengo 2",
+    ]),
+    Ok([
+      "Flamengo 6 2 2", "Atletico-MG 3 1 0", "Palmeiras 1 0 -1",
+      "Sao-Paulo 1 0 -1",
+    ]),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo 2", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Criciuma 2 Flamengo 3",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
+    ]),
+    Ok([
+      "Palmeiras 9 3 6", "Bahia 6 2 3", "Corinthians 6 2 4",
+      "Internacional 6 2 4", "Vasco 6 2 3", "Fortaleza 6 2 1", "Flamengo 6 2 -1",
+      "Atletico 3 1 1", "Bragantino 3 1 1", "Cruzeiro 3 1 0", "Sao-Paulo 3 1 -1",
+      "Botafogo 3 1 -8", "Athletico 0 0 -1", "Criciuma 0 0 -1", "Vitoria 0 0 -1",
+      "Atletico-Go 0 0 -2", "Cuiaba 0 0 -1", "Fluminense 0 0 -2",
+      "Gremio 0 0 -3", "Juventude 0 0 -2",
+    ]),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo2", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(CamposIncompletos),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Botafogo 2", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(TimeDuplicado),
+  )
+    check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo ", " ", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(CamposIncompletos),
+  )
+  check.eq(
+    string_to_resultado(["Corinthia", "", "Cortina", "0"]),
+    Error(PlacarInvalido),
+  )
+      check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo ", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3  "
+    ]),
+    Error(MaxCamposExcedidos),
+  )
+        check.eq(
+    main_brasileirao([]),
+    Error(ListaVazia),
+  )
+}
+
+/// Função que convete uma *lista de desemepenhos* ordenada em uma lista de *strings* 
+/// converte cada elemento de *desemepenho* em string e depois concatena tudo em uma só string e retorna
+pub fn desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
+  case desempenho {
+    [] -> []
+    [primeiro, ..resto] -> [
+      primeiro.time
+        <> " "
+        <> int.to_string(primeiro.pontos)
+        <> " "
+        <> int.to_string(primeiro.vitorias)
+        <> " "
+        <> int.to_string(primeiro.saldo_gol),
+      ..desempenho_to_string(resto)
+    ]
+  }
+}
+
+pub fn desempenho_to_string_examples() {
+  check.eq(
+    desempenho_to_string([
+      Desempenho("Abruzeiro", 17, 7, 11),
+      Desempenho("Athletico", 17, 7, 11),
+      Desempenho("Santos", 17, 5, 10),
+      Desempenho("Internacional", 14, 1, 22),
+      Desempenho("Vitória", 14, 1, 2),
+      Desempenho("Flamengo", 0, 1, 0),
+      Desempenho("Botafogo", 0, 0, 0),
+    ]),
+    [
+      "Abruzeiro 17 7 11", "Athletico 17 7 11", "Santos 17 5 10",
+      "Internacional 14 1 22", "Vitória 14 1 2", "Flamengo 0 1 0",
+      "Botafogo 0 0 0",
+    ],
+  )
+}
 
 //Função que ordena a lista de desempenhos para a formação de uma tabela
 //de resultados. Os valores serão ordenados, em sequencia de importância:
 //Pontos, Vitórias, Saldo de gols, Ordem alfabética.
 pub fn ordena_lista_desempenhos(lst: List(Desempenho)) -> List(Desempenho) {
-  case lst{
+  case lst {
     [] -> []
-    [primeiro, ..resto] -> inserir_lista(ordena_lista_desempenhos(resto), primeiro)
+    [primeiro, ..resto] ->
+      inserir_lista(ordena_lista_desempenhos(resto), primeiro)
   }
 }
 
-
-pub fn ordena_lista_desempenhos_examples(){
-  check.eq(ordena_lista_desempenhos(
+pub fn ordena_lista_desempenhos_examples() {
+  check.eq(
+    ordena_lista_desempenhos([
+      Desempenho("Abruzeiro", 17, 7, 11),
+      Desempenho("Athletico", 17, 7, 11),
+      Desempenho("Santos", 17, 5, 10),
+      Desempenho("Internacional", 14, 1, 22),
+      Desempenho("Vitória", 14, 1, 2),
+      Desempenho("Flamengo", 0, 1, 0),
+      Desempenho("Botafogo", 0, 0, 0),
+    ]),
     [
-      Desempenho("Abruzeiro", 17, 7, 11), 
-      Desempenho("Athletico", 17, 7, 11), 
-      Desempenho("Santos", 17, 5, 10), 
-      Desempenho("Internacional",14,1,22),
-      Desempenho("Vitória",14,1,2),
-      Desempenho("Flamengo",0,1,0),
-      Desempenho("Botafogo",0,0,0),
-      ]),
-      [
-        Desempenho("Abruzeiro", 17, 7, 11),
-        Desempenho("Athletico", 17, 7, 11),
-        Desempenho("Santos", 17, 5, 10), 
-        Desempenho("Internacional",14,1,22),
-        Desempenho("Vitória",14,1,2),
-        Desempenho("Flamengo",0,1,0),
-        Desempenho("Botafogo",0,0,0),
-      ]
-      
-      )
+      Desempenho("Abruzeiro", 17, 7, 11),
+      Desempenho("Athletico", 17, 7, 11),
+      Desempenho("Santos", 17, 5, 10),
+      Desempenho("Internacional", 14, 1, 22),
+      Desempenho("Vitória", 14, 1, 2),
+      Desempenho("Flamengo", 0, 1, 0),
+      Desempenho("Botafogo", 0, 0, 0),
+    ],
+  )
 }
 
-
-pub fn inserir_lista(lst: List(Desempenho), desem: Desempenho) -> List(Desempenho){
-  case lst{
+pub fn inserir_lista(
+  lst: List(Desempenho),
+  desem: Desempenho,
+) -> List(Desempenho) {
+  case lst {
     [] -> [desem]
     [primeiro, ..resto] -> {
-      case desem.pontos > primeiro.pontos{
+      case desem.pontos > primeiro.pontos {
         True -> [desem, primeiro, ..resto]
         False -> {
-          case desem.pontos == primeiro.pontos{
-            True -> case desem.vitorias > primeiro.vitorias{
-              True -> [desem, primeiro, ..resto]
-              False -> case desem.saldo_gol > primeiro.saldo_gol{
+          case desem.pontos == primeiro.pontos {
+            True ->
+              case desem.vitorias > primeiro.vitorias {
                 True -> [desem, primeiro, ..resto]
-                False -> case string.compare(desem.time, primeiro.time){
-                  order.Eq -> [primeiro, ..inserir_lista(resto, desem)]
-                  order.Lt -> [desem, primeiro, ..resto]
-                  order.Gt -> [primeiro, ..inserir_lista(resto, desem)]
-                }
+                False ->
+                  case desem.saldo_gol > primeiro.saldo_gol {
+                    True -> [desem, primeiro, ..resto]
+                    False ->
+                      case string.compare(desem.time, primeiro.time) {
+                        order.Eq -> [primeiro, ..inserir_lista(resto, desem)]
+                        order.Lt -> [desem, primeiro, ..resto]
+                        order.Gt -> [primeiro, ..inserir_lista(resto, desem)]
+                      }
+                  }
               }
-            }
             False -> [primeiro, ..inserir_lista(resto, desem)]
           }
         }
@@ -374,9 +512,29 @@ pub fn mescla_desempenho_unico_examples() {
       Desempenho("Botafogo", 3, 1, 2),
     ],
   )
+    check.eq(
+    mescla_desempenho_unico(
+      [
+        Desempenho("Santos", 3, 1, 1),
+        Desempenho("Flamengo", 3, 1, 1),
+        Desempenho("Botafogo", 3, 1, 4),
+        Desempenho("Atletico-MG", 1, 0, 0),
+        Desempenho("Santos", 1, 0, 0),
+        Desempenho("Botafogo", 3, 1, 2),
+      ],
+      Desempenho("Santos", 1, 0, 1),
+    ),
+    [
+      Desempenho("Santos", 3, 1, 1),
+      Desempenho("Flamengo", 3, 1, 1),
+      Desempenho("Botafogo", 3, 1, 4),
+      Desempenho("Atletico-MG", 4, 2, 4),
+      Desempenho("Santos", 2, 0, 1),
+      Desempenho("Botafogo", 3, 1, 2),
+    ],
+  )
 }
 
-//FAZER EXEMPLOS E ESPECIFICAÇÃO
 
 //Função para eliminação de repetições dentro de uma lista de desempenhos, deixando apenas os 
 //valores finais acumulados de pontos
@@ -392,9 +550,8 @@ pub fn elimina_repeticao_desempenho(a: List(Desempenho)) -> List(Desempenho) {
   }
 }
 
-//FAZER EXEMPLOS E ESPECIFICAÇÃO
 
-//Verifica se um elemento ainda existem dentro de uma certa lista
+//Verifica se um elemento ainda existe dentro de uma certa lista
 pub fn compara_desempenho(lst: List(Desempenho), des: Desempenho) -> Bool {
   case lst {
     [] -> False
@@ -472,7 +629,6 @@ pub fn compara_com_resto(lst: List(Resultado), res: Resultado) -> Bool {
   }
 }
 
-//FAZER MAIS TESTE ======================================
 pub fn compara_com_resto_examples() {
   let assert Ok(gol1) = new_gol(4)
   let assert Ok(gol2) = new_gol(3)
