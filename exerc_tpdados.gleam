@@ -1,8 +1,6 @@
-import gleam/float
 import gleam/int
 import gleam/string
 import sgleam/check
-import gleam/option.{type Option, None, Some}
 
 //Exercicio 10
 pub type Direcao {
@@ -527,3 +525,95 @@ pub fn hms_to_string(tempo: Tempo) -> String{
 //  check.eq(xadrez(Personagem(Lestex, 4, 4)), 6)
 //  check.eq(xadrez(Personagem(Sulx, 7, 8)), 7)
 //}
+
+//Exercicio 22
+
+
+
+pub type Posicao{
+  Posicao(x: Int, y: Int, direcao: Direcaoa)
+}
+
+pub type Direcaoa{
+  Nortea
+  Sula
+  Lestea
+  Oestea
+}
+
+pub type Lado {
+  Direita
+  Esquerda
+}
+
+pub type Movimento{
+  Andar(qtd: Int)
+  Virar(lado: Lado)
+  }
+
+
+//Função que dada a *posição* de um personagem diz a *nova posição* na qual
+//ele se encontra. A função possui um tipo posição que dita em qual posição do tabuleiro
+//a peça se encontra assim como seu lado. De acordo com os comandos essa posição e lado
+//devem mudar. A entrada da função deve ser um tipo posição e uma quantidade de casas.
+
+pub fn xadrez_posicao(pos: Posicao, mov: Movimento) -> Posicao{
+  case pos.direcao, mov{
+    Nortea, Andar(qtd) -> Posicao(pos.x, pos.y+qtd, Nortea)
+    Sula, Andar(qtd) -> Posicao(pos.x, pos.y-qtd, Sula)
+    Lestea, Andar(qtd) -> Posicao(pos.x+qtd, pos.y, Lestea)
+    Oestea, Andar(qtd) -> Posicao(pos.x-qtd, pos.y, Oestea)
+    Nortea, Virar(lado) if lado == Direita -> Posicao(pos.x, pos.y, Lestea)
+    Nortea, Virar(lado) if lado == Esquerda -> Posicao(pos.x, pos.y, Oestea)
+    Sula, Virar(lado) if lado == Direita -> Posicao(pos.x, pos.y, Oestea)
+    Sula, Virar(lado) if lado == Esquerda -> Posicao(pos.x, pos.y, Lestea)
+    Lestea, Virar(lado) if lado == Direita -> Posicao(pos.x, pos.y, Sula)
+    Lestea, Virar(lado) if lado == Esquerda -> Posicao(pos.x, pos.y, Nortea)
+    Oestea, Virar(lado) if lado == Direita -> Posicao(pos.x, pos.y, Nortea)
+    Oestea, Virar(lado) if lado == Esquerda -> Posicao(pos.x, pos.y, Sula)
+    _, _ -> Posicao(pos.x, pos.y, pos.direcao)
+  }
+}
+
+
+pub fn xadrez_posicao_examples(){
+  check.eq(xadrez_posicao(Posicao(1, 1, Nortea), Andar(5)), Posicao(1,6,Nortea))
+  check.eq(xadrez_posicao(Posicao(1, 5, Nortea), Virar(Direita)), Posicao(1,5,Lestea))
+  check.eq(xadrez_posicao(Posicao(7, 5, Sula), Andar(2)), Posicao(7,3,Sula))
+}
+
+
+//Exercicio 23
+
+pub type FormaPagamento{
+  PixDinheiro
+  Boleto
+  CartaoParcela(vezes: Int)
+}
+
+//Função recebe uma forma de pagamento e o valor de compra e produz
+//o valor final da compra com base nos descontos ou taxas da forma de pagamento em questão.
+//A função recebe como entrada uma *FormaPagamento* e um *valor de compra* (Float),
+//de acordo com a forma de pagamento calcula um valor especifico para cada uma:
+/// - Pix/Dinheiro = 10% de desconto
+/// - Boleto = 8% de desconto
+/// - No cartao: para 3 < parcelas <= 12 possui acréscimo no valor de 12%.
+/// Caso existam parcelas menores ou iguais a 3, não possui desconto.
+/// Não são permitidas parcelas maiores do que 12.
+
+pub fn calcula_valor(forma: FormaPagamento, valor: Float) -> Float{
+  case forma{
+    PixDinheiro -> valor -. {valor*.0.10}
+    Boleto -> valor -. {valor*.0.08}
+    CartaoParcela(vezes) if 3 < vezes -> valor +. {valor*.0.12}
+    CartaoParcela(_) -> valor
+  }
+}
+
+
+pub fn calcula_valor_examples(){
+  check.eq(calcula_valor(PixDinheiro, 15.00), 13.5)
+  check.eq(calcula_valor(Boleto, 27.00), 24.84)
+  check.eq(calcula_valor(CartaoParcela(5), 30.00), 33.6)
+  check.eq(calcula_valor(CartaoParcela(1), 30.00), 30.00)
+}
