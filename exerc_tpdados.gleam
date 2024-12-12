@@ -617,3 +617,6 @@ pub fn calcula_valor_examples(){
   check.eq(calcula_valor(CartaoParcela(5), 30.00), 33.6)
   check.eq(calcula_valor(CartaoParcela(1), 30.00), 30.00)
 }
+
+
+
