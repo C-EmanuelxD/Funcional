@@ -504,6 +504,26 @@ pub fn ordena_lista_desempenhos_examples() {
       Desempenho("Flamengo", 5, 1, 2),
     ],
   )
+  check.eq(
+    ordena_lista_desempenhos([
+      Desempenho("Flamengo", 5, 0, 1),
+      Desempenho("City", 8495, 9, 13),
+      Desempenho("Real Madrid", 8495, 9, 11),
+      Desempenho("Ibis", 0, 0, 1),
+      Desempenho("Vitoria", 0, 0, 2),
+      Desempenho("Snatos", 7, 0, 4),
+      Desempenho("Botafofo", 13, 0, 7),
+    ]),
+    [
+      Desempenho("Gremio", 30, 1, 1),
+      Desempenho("Santos", 14, 5, 10),
+      Desempenho("Botafogo", 13, 0, 2),
+      Desempenho("Criciuma", 12, 7, 3),
+      Desempenho("Vitória", 12, 1, 2),
+      Desempenho("Fortaleza", 5, 7, 1),
+      Desempenho("Flamengo", 5, 1, 2),
+    ],
+  )
 }
 
 pub fn inserir_lista(

@@ -509,6 +509,26 @@ pub fn ordena_lista_desempenhos_examples() {
       Desempenho("Flamengo", 5, 1, 2),
     ],
   )
+  check.eq(
+    ordena_lista_desempenhos([
+      Desempenho("Flamengo", 5, 0, 1),
+      Desempenho("City", 8495, 9, 13),
+      Desempenho("Real Madrid", 8495, 9, 11),
+      Desempenho("Ibis", 0, 0, 1),
+      Desempenho("Vitoria", 0, 0, 2),
+      Desempenho("Snatos", 7, 0, 4),
+      Desempenho("Botafofo", 13, 0, 7),
+    ]),
+    [
+      Desempenho(time: "City", pontos: 8495, vitorias: 9, saldo_gol: 13),
+      Desempenho(time: "Real Madrid", pontos: 8495, vitorias: 9, saldo_gol: 11),
+      Desempenho(time: "Botafofo", pontos: 13, vitorias: 0, saldo_gol: 7),
+      Desempenho(time: "Snatos", pontos: 7, vitorias: 0, saldo_gol: 4),
+      Desempenho(time: "Flamengo", pontos: 5, vitorias: 0, saldo_gol: 1),
+      Desempenho(time: "Vitoria", pontos: 0, vitorias: 0, saldo_gol: 2),
+      Desempenho(time: "Ibis", pontos: 0, vitorias: 0, saldo_gol: 1),
+    ],
+  )
 }
 
 pub fn inserir_lista(
@@ -530,14 +550,8 @@ pub fn inserir_lista(
         False, True, True, _, _, _ -> [desem, primeiro, ..resto]
         False, True, False, True, _, _ -> [desem, primeiro, ..resto]
         False, True, False, False, True, order.Lt -> [desem, primeiro, ..resto]
-        False, True, False, False, True, order.Eq -> [
-          primeiro,
-          ..inserir_lista(resto, desem)
-        ]
-        False, True, False, False, True, order.Gt -> [
-          primeiro,
-          ..inserir_lista(resto, desem)
-        ]
+        False, True, False, False, True, order.Eq -> [primeiro,..inserir_lista(resto, desem)]
+        False, True, False, False, True, order.Gt -> [primeiro,..inserir_lista(resto, desem)]
         _, _, _, _, _, _ -> [primeiro, ..inserir_lista(resto, desem)]
       }
     }
@@ -1309,6 +1323,6 @@ pub fn string_to_resultado_examples() {
   )
   check.eq(
     string_to_resultado(["Santos", "-1", "Flamengo", "0"]),
-    Error(PlacarInvalido)
+    Error(PlacarInvalido),
   )
 }
