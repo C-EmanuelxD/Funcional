@@ -51,6 +51,12 @@ pub type Erros {
   ListaVazia
 }
 
+
+
+pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(String), Erros) {
+  
+  todo
+}
 /// Função que convete uma *lista de desempenhos* ordenada em uma lista de *strings* 
 /// converte cada elemento de *desemepenho* em string e depois concatena tudo em uma só string e retorna
 /// tabelado
@@ -117,6 +123,7 @@ pub fn time_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
   list.map(desempenho, fn(d: Desempenho) { d.time })
 }
 
+
 pub fn time_desempenho_to_string_examples() {
   check.eq(
     time_desempenho_to_string([
@@ -134,31 +141,37 @@ pub fn time_desempenho_to_string_examples() {
     ],
   )
 }
-
-pub fn ordena_lista_desempenhos(
-  lst: List(Desempenho),
-) -> List(Desempenho) {
+/// ordena toda a lista
+pub fn ordena_lista_desempenhos(lst: List(Desempenho)) -> List(Desempenho) {
   list.fold(lst, [], ordena)
 }
 
+/// funcao que ordena lista de desempenhos, entra uma lista e um desemepnho
+/// que vai ser ordenado e retorna ordenado
 pub fn ordena(lst: List(Desempenho), n: Desempenho) -> List(Desempenho) {
   list.fold_until(lst, [], fn(acc, e) {
     case inserir_lista(n, e) == n {
-      True -> list.Stop(list.concat([acc, [n], [e], list.drop(lst, list.length(acc) + 1)]))
+      True ->
+        list.Stop(
+          list.concat([acc, [n], [e], list.drop(lst, list.length(acc) + 1)]),
+        )
       False -> list.Continue(list.append(acc, [e]))
     }
   })
   |> fn(result) {
     case result {
-      [] -> [n]  
-      acc -> case list.length(acc) == list.length(lst) {
-        True -> list.append(acc, [n])  
-        False -> acc  
-      }
+      [] -> [n]
+      acc ->
+        case list.length(acc) == list.length(lst) {
+          True -> list.append(acc, [n])
+          False -> acc
+        }
     }
   }
 }
 
+/// compara desemepenho entre dois times pela ordem de pontos, vitorias, saldo de gols e 
+/// como criterio desempate utiliza a ordem alfaetica
 pub fn inserir_lista(desem1: Desempenho, desem2: Desempenho) -> Desempenho {
   case
     { desem1.pontos > desem2.pontos },
@@ -494,10 +507,10 @@ pub fn cria_resultado_examples() {
   )
 }
 
-// NECESSITA TESTES
+/// Função que verifica se existe repetição de times dentro de uma dada lista de resultados
 pub fn verifica_repeticao(lst: List(Resultado)) -> Bool {
   //Falecido compara_com_resto
-  list.fold_until(lst, False, fn(acc, elem: Resultado) {
+  list.fold_until(lst, False, fn(_, elem: Resultado) {
     case
       list.count(lst, fn(elem_under: Resultado) {
         elem.time_um == elem_under.time_um
@@ -511,10 +524,9 @@ pub fn verifica_repeticao(lst: List(Resultado)) -> Bool {
   })
 }
 
-//FUNÇÃO PARA COLOCAR DESCRIÇÃO DEPOIS E REFAZER EXEMPLOS
+//Função que dada uma string, transforma no tipo resultado
 pub fn string_to_resultado(str_pura: String) -> Result(Resultado, Erros) {
   let str = string.split(str_pura, " ")
-  //REFAZER EXEMPLOS POR CAUSA DISSO
   case str {
     [] -> Error(CamposIncompletos)
     [primeiro, segundo, terceiro, quarto] -> {
@@ -538,6 +550,20 @@ pub fn string_to_resultado(str_pura: String) -> Result(Resultado, Erros) {
     [_, ..] -> Error(CamposIncompletos)
   }
 }
+
+pub fn string_to_resultado_examples() {
+  check.eq(string_to_resultado(""), Error(CamposIncompletos))
+  check.eq(string_to_resultado("santos "), Error(CamposIncompletos))
+  check.eq(string_to_resultado("santos 1 corinthians 0 x"), Error(MaxCamposExcedidos)) 
+  check.eq(string_to_resultado("santos x corinthians 0"), Error(PlacarInvalido)) 
+  check.eq(string_to_resultado("santos 0 corinthians x"), Error(PlacarInvalido)) 
+  check.eq(string_to_resultado("santos -1 corinthians 0"), Error(PlacarInvalido)) 
+  check.eq(string_to_resultado("Santos 1 Corinthians 0"), Ok(Resultado("Santos", Gol(1), "Corinthians", Gol(0)))) 
+  check.eq(string_to_resultado("Atletico 7 Athletico 2"), Ok(Resultado("Atletico", Gol(7), "Athletico", Gol(2)))) 
+  check.eq(string_to_resultado("Juventude 0 Mirassol 0"), Ok(Resultado("Juventude", Gol(0), "Mirassol", Gol(0)))) 
+  check.eq(string_to_resultado("santos 1 santos 0"), Error(TimeDuplicado)) 
+}
+
 
 //Função que verifica se os times estão corretos (sem repetição e não vazios)
 pub fn verifica_times(time1: String, time2: String) -> Result(Bool, Erros) {
