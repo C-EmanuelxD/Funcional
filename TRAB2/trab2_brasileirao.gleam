@@ -51,32 +51,199 @@ pub type Erros {
   ListaVazia
 }
 
-
-
 pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(String), Erros) {
-  
-  todo
+  case lst_jogos == [] {
+    True -> Error(ListaVazia)
+    False -> {
+      case cria_resultado(lst_jogos) {
+        Ok(lst) ->
+          Ok(
+            desempenho_to_string(
+              ordena_lista_desempenhos(
+                mescla_desempenho(cria_lista_desempenho(lst)),
+              ),
+            ),
+          )
+        Error(a) -> Error(a)
+      }
+    }
+  }
 }
+
+pub fn main_examples() {
+  check.eq(
+    main_brasileirao([
+      "Sao-Paulo 1 Atletico-MG 2", "Flamengo 2 Palmeiras 1",
+      "Palmeiras 0 Sao-Paulo 0", "Atletico-MG 1 Flamengo 2",
+    ]),
+    Ok([
+      "Flamengo     6  2    2", "Atletico-MG  3  1    0",
+      "Palmeiras    1  0   -1", "Sao-Paulo    1  0   -1",
+    ]),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo 2", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Criciuma 2 Flamengo 3",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
+    ]),
+    Ok([
+      "Palmeiras      9  3    6", "Corinthians    6  2    4",
+      "Internacional  6  2    4", "Bahia          6  2    3",
+      "Vasco          6  2    3", "Fortaleza      6  2    1",
+      "Flamengo       6  2   -1", "Atletico       3  1    1",
+      "Bragantino     3  1    1", "Cruzeiro       3  1    0",
+      "Sao-Paulo      3  1   -1", "Botafogo       3  1   -8",
+      "Athletico      0  0   -1", "Criciuma       0  0   -1",
+      "Cuiaba         0  0   -1", "Vitoria        0  0   -1",
+      "Atletico-Go    0  0   -2", "Fluminense     0  0   -2",
+      "Juventude      0  0   -2", "Gremio         0  0   -3",
+    ]),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo2", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(CamposIncompletos),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Botafogo 2", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Criciuma 2 Flamengo 3",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(TimeDuplicado),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo ", " ", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Criciuma 2 Flamengo 3",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(PlacarInvalido),
+  )
+  check.eq(
+    main_brasileirao(["Corinthia", "", "Cortina", "0"]),
+    Error(CamposIncompletos),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo ", "Palmeiras 4 Botafogo 0", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3  ",
+    ]),
+    Error(PlacarInvalido),
+  )
+  check.eq(main_brasileirao([]), Error(ListaVazia))
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo 2", "Botafogo 1 Flamengo 2", "Flamengo 2 Palmeiras 4",
+      "Fortaleza 2 Palmeiras 1", "Internacional 2 Botafogo 0",
+      "Sao-Paulo 0 Internacional 3", "Corinthians 4 Fortaleza 3",
+      "Bahia 3 Flamengo 2", "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0",
+      "Vitoria 1 Vasco 2", "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2",
+      "Gremio 0 Corinthians 3", "Juventude 1 Sao-Paulo 3",
+      "Bragantino 2 Internacional 1", "Athletico 2 Fortaleza 3",
+      "Criciuma 2 Flamengo 3", "Atletico-Go 2 Palmeiras 4",
+      "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(JogoDuplicado),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo 2", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Sao-Paulo 0 Internacional 3",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Botafogo 1 Flamengo 2",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(JogoDuplicado),
+  )
+  check.eq(
+    main_brasileirao([
+      "Botafogo 1 Flamengo 2", "Palmeiras 4 Botafogo 0",
+      "Flamengo 2 Palmeiras 4", "Fortaleza 2 Palmeiras 1",
+      "Internacional 2 Botafogo 0", "Vasco 2 Botafogo 0",
+      "Corinthians 4 Fortaleza 3", "Bahia 3 Flamengo 2",
+      "Cruzeiro 1 Palmeiras 0", "Vasco 2 Botafogo 0", "Vitoria 1 Vasco 2",
+      "Atletico 3 Cruzeiro 2", "Fluminense 0 Bahia 2", "Gremio 0 Corinthians 3",
+      "Juventude 1 Sao-Paulo 3", "Bragantino 2 Internacional 1",
+      "Athletico 2 Fortaleza 3", "Criciuma 2 Flamengo 3",
+      "Atletico-Go 2 Palmeiras 4", "Cuiaba 2 Botafogo 3",
+    ]),
+    Error(JogoDuplicado),
+  )
+}
+
 /// Função que convete uma *lista de desempenhos* ordenada em uma lista de *strings* 
 /// converte cada elemento de *desemepenho* em string e depois concatena tudo em uma só string e retorna
 /// tabelado
 fn desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
   let nomes = time_desempenho_to_string(desempenho)
-  let max = tamanho_maximo(nomes)
-
+  let max_nomes = tamanho_maximo(nomes)
+  let pontoss = pontos_desempenho_to_string(desempenho)
+  let max_pontos = tamanho_maximo(pontoss)
+  let vitoriass = vitorias_desempenho_to_string(desempenho)
+  let max_vitorias = tamanho_maximo(vitoriass)
   list.map(desempenho, fn(d: Desempenho) {
-    let espacos = string.repeat(" ", max - string.length(d.time))
+    let espacos = string.repeat(" ", max_nomes - string.length(d.time))
     let varn = case d.saldo_gol < 0 {
       True -> "  "
       False -> "   "
     }
+    let con =
+      string.repeat(" ", max_pontos - string.length(int.to_string(d.pontos)))
+    let diss =
+      string.repeat(
+        " ",
+        max_vitorias - string.length(int.to_string(d.vitorias)),
+      )
     string.concat([
       d.time,
       espacos,
       "  ",
       int.to_string(d.pontos),
+      con,
       "  ",
       int.to_string(d.vitorias),
+      diss,
+      " ",
       varn,
       int.to_string(d.saldo_gol),
     ])
@@ -86,8 +253,8 @@ fn desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
 pub fn desempenho_to_string_examples() {
   check.eq(
     desempenho_to_string([
-      Desempenho("Abruzeiro", 17, 7, 11),
-      Desempenho("Athletico", 17, 7, 11),
+      Desempenho("Abruzeiro", 13_457, 7, 11),
+      Desempenho("Athletico", 17, 7, -1),
       Desempenho("Santos", 17, 5, 10),
       Desempenho("Internacional", 14, 1, 22),
       Desempenho("Vitória", 14, 1, 2),
@@ -95,10 +262,10 @@ pub fn desempenho_to_string_examples() {
       Desempenho("Botafogo", 0, 0, 0),
     ]),
     [
-      "Abruzeiro      17  7   11", "Athletico      17  7   11",
-      "Santos         17  5   10", "Internacional  14  1   22",
-      "Vitória        14  1   2", "Flamengo       0  1   0",
-      "Botafogo       0  0   0",
+      "Abruzeiro      13457  7    11", "Athletico      17     7   -1",
+      "Santos         17     5    10", "Internacional  14     1    22",
+      "Vitória        14     1    2", "Flamengo       0      1    0",
+      "Botafogo       0      0    0",
     ],
   )
 }
@@ -123,6 +290,19 @@ pub fn time_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
   list.map(desempenho, fn(d: Desempenho) { d.time })
 }
 
+pub fn pontos_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
+  list.map(desempenho, fn(d: Desempenho) { int.to_string(d.pontos) })
+}
+
+pub fn vitorias_desempenho_to_string(
+  desempenho: List(Desempenho),
+) -> List(String) {
+  list.map(desempenho, fn(d: Desempenho) { int.to_string(d.vitorias) })
+}
+
+pub fn gols_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
+  list.map(desempenho, fn(d: Desempenho) { int.to_string(d.saldo_gol) })
+}
 
 pub fn time_desempenho_to_string_examples() {
   check.eq(
@@ -141,6 +321,7 @@ pub fn time_desempenho_to_string_examples() {
     ],
   )
 }
+
 /// ordena toda a lista
 pub fn ordena_lista_desempenhos(lst: List(Desempenho)) -> List(Desempenho) {
   list.fold(lst, [], ordena)
@@ -524,21 +705,19 @@ pub fn verifica_repeticao(lst: List(Resultado)) -> Bool {
   })
 }
 
-//Função que dada uma string, transforma no tipo resultado
+//Função que dada uma string, transforma no tipo resultado e verifica os possíveis erros.
 pub fn string_to_resultado(str_pura: String) -> Result(Resultado, Erros) {
   let str = string.split(str_pura, " ")
   case str {
     [] -> Error(CamposIncompletos)
     [primeiro, segundo, terceiro, quarto] -> {
       result.try(verifica_times(primeiro, terceiro), fn(_) {
-        use a <- result.try(case int.parse(segundo) {
-          Ok(x) -> Ok(x)
-          Error(Nil) -> Error(PlacarInvalido)
-        })
-        use d <- result.try(case int.parse(quarto) {
-          Ok(x) -> Ok(x)
-          Error(Nil) -> Error(PlacarInvalido)
-        })
+        use a <- result.try(
+          result.map_error(int.parse(segundo), fn(_) { PlacarInvalido }),
+        )
+        use d <- result.try(
+          result.map_error(int.parse(quarto), fn(_) { PlacarInvalido }),
+        )
 
         use gol1 <- result.try(new_gol(a))
         use gol2 <- result.try(new_gol(d))
@@ -554,16 +733,30 @@ pub fn string_to_resultado(str_pura: String) -> Result(Resultado, Erros) {
 pub fn string_to_resultado_examples() {
   check.eq(string_to_resultado(""), Error(CamposIncompletos))
   check.eq(string_to_resultado("santos "), Error(CamposIncompletos))
-  check.eq(string_to_resultado("santos 1 corinthians 0 x"), Error(MaxCamposExcedidos)) 
-  check.eq(string_to_resultado("santos x corinthians 0"), Error(PlacarInvalido)) 
-  check.eq(string_to_resultado("santos 0 corinthians x"), Error(PlacarInvalido)) 
-  check.eq(string_to_resultado("santos -1 corinthians 0"), Error(PlacarInvalido)) 
-  check.eq(string_to_resultado("Santos 1 Corinthians 0"), Ok(Resultado("Santos", Gol(1), "Corinthians", Gol(0)))) 
-  check.eq(string_to_resultado("Atletico 7 Athletico 2"), Ok(Resultado("Atletico", Gol(7), "Athletico", Gol(2)))) 
-  check.eq(string_to_resultado("Juventude 0 Mirassol 0"), Ok(Resultado("Juventude", Gol(0), "Mirassol", Gol(0)))) 
-  check.eq(string_to_resultado("santos 1 santos 0"), Error(TimeDuplicado)) 
+  check.eq(
+    string_to_resultado("santos 1 corinthians 0 x"),
+    Error(MaxCamposExcedidos),
+  )
+  check.eq(string_to_resultado("santos x corinthians 0"), Error(PlacarInvalido))
+  check.eq(string_to_resultado("santos 0 corinthians x"), Error(PlacarInvalido))
+  check.eq(
+    string_to_resultado("santos -1 corinthians 0"),
+    Error(PlacarInvalido),
+  )
+  check.eq(
+    string_to_resultado("Santos 1 Corinthians 0"),
+    Ok(Resultado("Santos", Gol(1), "Corinthians", Gol(0))),
+  )
+  check.eq(
+    string_to_resultado("Atletico 7 Athletico 2"),
+    Ok(Resultado("Atletico", Gol(7), "Athletico", Gol(2))),
+  )
+  check.eq(
+    string_to_resultado("Juventude 0 Mirassol 0"),
+    Ok(Resultado("Juventude", Gol(0), "Mirassol", Gol(0))),
+  )
+  check.eq(string_to_resultado("santos 1 santos 0"), Error(TimeDuplicado))
 }
-
 
 //Função que verifica se os times estão corretos (sem repetição e não vazios)
 pub fn verifica_times(time1: String, time2: String) -> Result(Bool, Erros) {
