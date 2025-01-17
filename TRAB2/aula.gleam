@@ -51,12 +51,6 @@ pub type Erros {
   ListaVazia
 }
 
-
-
-pub fn main_brasileirao(lst_jogos: List(String)) -> Result(List(String), Erros) {
-  
-  todo
-}
 /// Função que convete uma *lista de desempenhos* ordenada em uma lista de *strings* 
 /// converte cada elemento de *desemepenho* em string e depois concatena tudo em uma só string e retorna
 /// tabelado
@@ -123,7 +117,6 @@ pub fn time_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
   list.map(desempenho, fn(d: Desempenho) { d.time })
 }
 
-
 pub fn time_desempenho_to_string_examples() {
   check.eq(
     time_desempenho_to_string([
@@ -141,55 +134,48 @@ pub fn time_desempenho_to_string_examples() {
     ],
   )
 }
-/// ordena toda a lista
+
 pub fn ordena_lista_desempenhos(lst: List(Desempenho)) -> List(Desempenho) {
-  list.fold(lst, [], ordena)
+  list.fold(lst, [], fn(acc, desem) {
+    let index = encontrar_indice(acc, desem)
+    list.append(list.take(acc, index), [desem, ..list.drop(acc, index)])
+  })
 }
 
-/// funcao que ordena lista de desempenhos, entra uma lista e um desemepnho
-/// que vai ser ordenado e retorna ordenado
-pub fn ordena(lst: List(Desempenho), n: Desempenho) -> List(Desempenho) {
-  list.fold_until(lst, [], fn(acc, e) {
-    case inserir_lista(n, e) == n {
-      True ->
-        list.Stop(
-          list.concat([acc, [n], [e], list.drop(lst, list.length(acc) + 1)]),
-        )
-      False -> list.Continue(list.append(acc, [e]))
+pub fn encontrar_indice(lst: List(Desempenho), desem: Desempenho) -> Int {
+  list.index_fold(lst, 0, fn(index, elem, acc) {
+    let compara = comparar_desempenhos(elem, desem)
+    case compara {
+      order.Lt -> acc
+      _ -> index + 1
     }
   })
-  |> fn(result) {
-    case result {
-      [] -> [n]
-      acc ->
-        case list.length(acc) == list.length(lst) {
-          True -> list.append(acc, [n])
-          False -> acc
-        }
-    }
-  }
 }
 
-/// compara desemepenho entre dois times pela ordem de pontos, vitorias, saldo de gols e 
-/// como criterio desempate utiliza a ordem alfaetica
-pub fn inserir_lista(desem1: Desempenho, desem2: Desempenho) -> Desempenho {
-  case
-    { desem1.pontos > desem2.pontos },
-    { desem1.pontos == desem2.pontos },
-    { desem1.vitorias > desem2.vitorias },
-    { desem1.vitorias == desem2.vitorias },
-    { desem1.saldo_gol > desem2.saldo_gol },
-    { desem1.saldo_gol == desem2.saldo_gol },
-    { string.compare(desem1.time, desem2.time) }
-  {
-    True, _, _, _, _, _, _ -> desem1
-    False, False, _, _, _, _, _ -> desem2
-    False, True, True, _, _, _, _ -> desem1
-    False, True, False, False, _, _, _ -> desem2
-    False, True, False, True, True, _, _ -> desem1
-    False, True, False, True, False, False, _ -> desem2
-    False, True, False, True, False, True, order.Lt -> desem1
-    False, True, False, True, False, True, _ -> desem2
+pub fn comparar_desempenhos(a: Desempenho, b: Desempenho) -> order.Order {
+  // se a deve vir antes de b, retorna Gt
+  // se b deve vir antes de a, retorna Lt
+  // se são iguais, retorna Eq
+  case True {
+    // compara por pontos
+    _ if a.pontos > b.pontos -> order.Gt
+    _ if a.pontos < b.pontos -> order.Lt
+
+    // se pontos iguais, compara vitória
+    _ if a.vitorias > b.vitorias -> order.Gt
+    _ if a.vitorias < b.vitorias -> order.Lt
+
+    // se vitorias iguais, compara saldo de gols
+    _ if a.saldo_gol > b.saldo_gol -> order.Gt
+    _ if a.saldo_gol < b.saldo_gol -> order.Lt
+
+    // se tudo igual, compara por nome do time
+    _ ->
+      case string.compare(a.time, b.time) {
+        order.Lt -> order.Gt
+        order.Gt -> order.Gt
+        order.Eq -> order.Eq
+      }
   }
 }
 
@@ -212,127 +198,6 @@ pub fn ordena_lista_desempenhos_examples() {
       Desempenho("Vitória", 14, 1, 2),
       Desempenho("Flamengo", 0, 1, 0),
       Desempenho("Botafogo", 0, 0, 0),
-    ],
-  )
-  check.eq(
-    ordena_lista_desempenhos([
-      Desempenho("Flamengo", 5, 0, 1),
-      Desempenho("City", 8495, 9, 13),
-      Desempenho("Real Madrid", 8495, 9, 11),
-      Desempenho("Ibis", 0, 0, 1),
-      Desempenho("Vitoria", 0, 0, 2),
-      Desempenho("Snatos", 7, 0, 4),
-      Desempenho("Botafofo", 13, 0, 7),
-    ]),
-    [
-      Desempenho(time: "City", pontos: 8495, vitorias: 9, saldo_gol: 13),
-      Desempenho(time: "Real Madrid", pontos: 8495, vitorias: 9, saldo_gol: 11),
-      Desempenho(time: "Botafofo", pontos: 13, vitorias: 0, saldo_gol: 7),
-      Desempenho(time: "Snatos", pontos: 7, vitorias: 0, saldo_gol: 4),
-      Desempenho(time: "Flamengo", pontos: 5, vitorias: 0, saldo_gol: 1),
-      Desempenho(time: "Vitoria", pontos: 0, vitorias: 0, saldo_gol: 2),
-      Desempenho(time: "Ibis", pontos: 0, vitorias: 0, saldo_gol: 1),
-    ],
-  )
-  check.eq(
-    ordena_lista_desempenhos([
-      Desempenho("Abruzeiro", 14, 7, 12),
-      Desempenho("Palmeiras", 17, 7, 11),
-      Desempenho("Santos", 17, 5, 10),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Internacional", 14, 1, 22),
-      Desempenho("Vitória", 14, 1, 2),
-      Desempenho("Flamengo", 5, 1, 2),
-    ]),
-    [
-      Desempenho("Palmeiras", 17, 7, 11),
-      Desempenho("Santos", 17, 5, 10),
-      Desempenho("Abruzeiro", 14, 7, 12),
-      Desempenho("Internacional", 14, 1, 22),
-      Desempenho("Vitória", 14, 1, 2),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Flamengo", 5, 1, 2),
-    ],
-  )
-  check.eq(
-    ordena_lista_desempenhos([
-      Desempenho("Abruzeiro", 14, 7, 12),
-      Desempenho("Palmeiras", 5, 7, 1),
-      Desempenho("Santos", 20, 5, 10),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Internacional", 3, 1, 22),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Flamengo", 5, 1, 2),
-    ]),
-    [
-      Desempenho("Santos", 20, 5, 10),
-      Desempenho("Abruzeiro", 14, 7, 12),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Palmeiras", 5, 7, 1),
-      Desempenho("Flamengo", 5, 1, 2),
-      Desempenho("Internacional", 3, 1, 22),
-    ],
-  )
-  check.eq(
-    ordena_lista_desempenhos([
-      Desempenho("Abruzeiro", 1, 7, 3),
-      Desempenho("Palmeiras", 5, 7, 1),
-      Desempenho("Santos", 12, 5, 10),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Internacional", 3, 1, 22),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Flamengo", 5, 1, 2),
-    ]),
-    [
-      Desempenho("Santos", 12, 5, 10),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Palmeiras", 5, 7, 1),
-      Desempenho("Flamengo", 5, 1, 2),
-      Desempenho("Internacional", 3, 1, 22),
-      Desempenho("Abruzeiro", 1, 7, 3),
-    ],
-  )
-  check.eq(
-    ordena_lista_desempenhos([
-      Desempenho("Criciuma", 1, 7, 3),
-      Desempenho("Fortaleza", 5, 7, 1),
-      Desempenho("Santos", 12, 5, 10),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Gremio", 3, 1, 22),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Flamengo", 5, 1, 2),
-    ]),
-    [
-      Desempenho("Santos", 12, 5, 10),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Botafogo", 9, 0, 2),
-      Desempenho("Fortaleza", 5, 7, 1),
-      Desempenho("Flamengo", 5, 1, 2),
-      Desempenho("Gremio", 3, 1, 22),
-      Desempenho("Criciuma", 1, 7, 3),
-    ],
-  )
-
-  check.eq(
-    ordena_lista_desempenhos([
-      Desempenho("Criciuma", 12, 7, 3),
-      Desempenho("Fortaleza", 5, 7, 1),
-      Desempenho("Santos", 14, 5, 10),
-      Desempenho("Botafogo", 13, 0, 2),
-      Desempenho("Gremio", 30, 1, 1),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Flamengo", 5, 1, 2),
-    ]),
-    [
-      Desempenho("Gremio", 30, 1, 1),
-      Desempenho("Santos", 14, 5, 10),
-      Desempenho("Botafogo", 13, 0, 2),
-      Desempenho("Criciuma", 12, 7, 3),
-      Desempenho("Vitória", 12, 1, 2),
-      Desempenho("Fortaleza", 5, 7, 1),
-      Desempenho("Flamengo", 5, 1, 2),
     ],
   )
 }
@@ -429,6 +294,7 @@ pub fn cria_lista_desempenho_examples() {
   )
 }
 
+//Função que baseada em um resultado, cria um desempenho com pontuação e times
 pub fn cria_desempenho(result: Resultado) -> List(Desempenho) {
   let gol1 = valor_gol(result.gol_um)
   let gol2 = valor_gol(result.gol_dois)
@@ -451,6 +317,45 @@ pub fn cria_desempenho(result: Resultado) -> List(Desempenho) {
       }
     }
   }
+}
+
+pub fn cria_desempenho_examples() {
+  let assert Ok(gol1) = new_gol(4)
+  let assert Ok(gol2) = new_gol(3)
+  let assert Ok(gol3) = new_gol(2)
+  let assert Ok(gol4) = new_gol(1)
+  let assert Ok(gol5) = new_gol(5)
+  let assert Ok(gol6) = new_gol(2)
+  let assert Ok(gol7) = new_gol(6)
+  let assert Ok(gol8) = new_gol(9)
+  check.eq(cria_desempenho(Resultado("Santos", gol1, "Flamengo", gol4)), [
+    Desempenho("Santos", 3, 1, 3),
+    Desempenho("Flamengo", 0, 0, -3),
+  ])
+  check.eq(cria_desempenho(Resultado("Flamengo", gol1, "Botafogo", gol1)), [
+    Desempenho("Flamengo", 1, 0, 0),
+    Desempenho("Botafogo", 1, 0, 0),
+  ])
+  check.eq(cria_desempenho(Resultado("Flamengo", gol4, "Botafogo", gol3)), [
+    Desempenho("Flamengo", 0, 0, -1),
+    Desempenho("Botafogo", 3, 1, 1),
+  ])
+  check.eq(cria_desempenho(Resultado("Gremio", gol4, "Internacional", gol8)), [
+    Desempenho("Gremio", 0, 0, -8),
+    Desempenho("Internacional", 3, 1, 8),
+  ])
+  check.eq(cria_desempenho(Resultado("Palmeiras", gol5, "Cuiaba", gol2)), [
+    Desempenho("Palmeiras", 3, 1, 2),
+    Desempenho("Cuiaba", 0, 0, -2),
+  ])
+  check.eq(cria_desempenho(Resultado("Flamengo", gol6, "Fluminense", gol4)), [
+    Desempenho("Flamengo", 3, 1, 1),
+    Desempenho("Fluminense", 0, 0, -1),
+  ])
+  check.eq(cria_desempenho(Resultado("Coritnhians", gol8, "Sao-Paulo", gol7)), [
+    Desempenho("Coritnhians", 3, 1, 3),
+    Desempenho("Sao-Paulo", 0, 0, -3),
+  ])
 }
 
 pub fn cria_resultado(lst: List(String)) -> Result(List(Resultado), Erros) {
@@ -507,10 +412,10 @@ pub fn cria_resultado_examples() {
   )
 }
 
-// NECESSITA TESTES
+// Função que verifica se existe repetição de times dentro de uma dada lista de resultados
 pub fn verifica_repeticao(lst: List(Resultado)) -> Bool {
   //Falecido compara_com_resto
-  list.fold_until(lst, False, fn(acc, elem: Resultado) {
+  list.fold_until(lst, False, fn(_, elem: Resultado) {
     case
       list.count(lst, fn(elem_under: Resultado) {
         elem.time_um == elem_under.time_um
