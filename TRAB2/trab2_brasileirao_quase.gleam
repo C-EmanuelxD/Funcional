@@ -379,21 +379,24 @@ pub fn tamanho_maximo_examples() {
   )
 }
 
-/// Devolve uma lista com os times convertendo *desempenho* para *string*
+/// Devolve uma lista com os times convertendo *time* para *string*
 pub fn time_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
   list.map(desempenho, fn(d: Desempenho) { d.time })
 }
 
+/// Devolve uma lista com os pontos convertendo *pontos* para *string*
 pub fn pontos_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
   list.map(desempenho, fn(d: Desempenho) { int.to_string(d.pontos) })
 }
 
+/// Devolve uma lista com as vitorias convertendo *vitorias* para *string*
 pub fn vitorias_desempenho_to_string(
   desempenho: List(Desempenho),
 ) -> List(String) {
   list.map(desempenho, fn(d: Desempenho) { int.to_string(d.vitorias) })
 }
 
+/// Devolve uma lista com os saldos de gols convertendo *saldo_gols* para *string*
 pub fn gols_desempenho_to_string(desempenho: List(Desempenho)) -> List(String) {
   list.map(desempenho, fn(d: Desempenho) { int.to_string(d.saldo_gol) })
 }
@@ -432,13 +435,15 @@ pub fn time_desempenho_to_string_examples() {
   )
 }
 
-/// ordena toda a lista
+/// ordena um *list* de *desempenho* usando a funcao ordena
 pub fn ordena_lista_desempenhos(lst: List(Desempenho)) -> List(Desempenho) {
   list.fold(lst, [], ordena)
 }
 
-/// funcao que ordena lista de desempenhos, entra uma lista e um desemepnho
-/// que vai ser ordenado e retorna ordenado
+/// insere um elemento em uma lista seguindo a ordem da funcao inserir_lista
+/// entrada e *lst* de desempehno e um desempenho a ser ordenado
+/// a saida e uma nova lista de desempenho com o desempenho inserido
+/// se a lista estiver vazia a lista apenas com o novo desempenho
 pub fn ordena(lst: List(Desempenho), n: Desempenho) -> List(Desempenho) {
   list.fold_until(lst, [], fn(acc, e) {
     case inserir_lista(n, e) == n {
@@ -461,7 +466,7 @@ pub fn ordena(lst: List(Desempenho), n: Desempenho) -> List(Desempenho) {
   }
 }
 
-/// compara desemepenho entre dois times pela ordem de pontos, vitorias, saldo de gols e 
+/// compara desemepenho entre dois times pela ordem: pontos, vitorias, saldo de gols e 
 /// como criterio desempate utiliza a ordem alfaetica
 pub fn inserir_lista(desem1: Desempenho, desem2: Desempenho) -> Desempenho {
   case
@@ -516,13 +521,13 @@ pub fn ordena_lista_desempenhos_examples() {
       Desempenho("Botafofo", 13, 0, 7),
     ]),
     [
-      Desempenho(time: "City", pontos: 8495, vitorias: 9, saldo_gol: 13),
-      Desempenho(time: "Real Madrid", pontos: 8495, vitorias: 9, saldo_gol: 11),
-      Desempenho(time: "Botafofo", pontos: 13, vitorias: 0, saldo_gol: 7),
-      Desempenho(time: "Snatos", pontos: 7, vitorias: 0, saldo_gol: 4),
-      Desempenho(time: "Flamengo", pontos: 5, vitorias: 0, saldo_gol: 1),
-      Desempenho(time: "Vitoria", pontos: 0, vitorias: 0, saldo_gol: 2),
-      Desempenho(time: "Ibis", pontos: 0, vitorias: 0, saldo_gol: 1),
+      Desempenho("City", 8495, 9, 13),
+      Desempenho("Real Madrid", 8495, 9, 11),
+      Desempenho("Botafofo", 13, 0, 7),
+      Desempenho("Snatos", 7, 0, 4),
+      Desempenho("Flamengo", 5, 0, 1),
+      Desempenho("Vitoria", 0, 0, 2),
+      Desempenho("Ibis", 0, 0, 1),
     ],
   )
   check.eq(
@@ -628,6 +633,9 @@ pub fn ordena_lista_desempenhos_examples() {
   )
 }
 
+/// combina desemepnho de um mesmo time em  um unico desempenho
+/// a entrada eh um *list* de *desemepnho* e devolve uma lista com cada 
+/// time aparecendo somente uma vez, a mescla do desempenho e feito pela funcao mesclar_times
 pub fn mescla_desempenho(lst: List(Desempenho)) -> List(Desempenho) {
   list.fold(lst, [], fn(acc: List(Desempenho), atual: Desempenho) {
     case list.find(acc, fn(d: Desempenho) { d.time == atual.time }) {
@@ -641,12 +649,13 @@ pub fn mescla_desempenho(lst: List(Desempenho)) -> List(Desempenho) {
   })
 }
 
+/// soma desempenho entre dois desempenhos de um mesmo time
 pub fn mesclar_times(existente: Desempenho, novo: Desempenho) -> Desempenho {
   Desempenho(
-    time: existente.time,
-    pontos: existente.pontos + novo.pontos,
-    vitorias: existente.vitorias + novo.vitorias,
-    saldo_gol: existente.saldo_gol + novo.saldo_gol,
+    existente.time,
+    existente.pontos + novo.pontos,
+    existente.vitorias + novo.vitorias,
+    existente.saldo_gol + novo.saldo_gol,
   )
 }
 
@@ -662,10 +671,10 @@ pub fn mescla_desempenho_examples() {
       Desempenho("Botafogo", 3, 1, 2),
     ]),
     [
-      Desempenho(time: "Botafogo", pontos: 6, vitorias: 2, saldo_gol: 6),
-      Desempenho(time: "Santos", pontos: 4, vitorias: 1, saldo_gol: 1),
-      Desempenho(time: "Atletico-MG", pontos: 1, vitorias: 0, saldo_gol: 0),
-      Desempenho(time: "Flamengo", pontos: 3, vitorias: 1, saldo_gol: 0),
+      Desempenho("Botafogo", 6, 2, 6),
+      Desempenho("Santos", 4, 1, 1),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Flamengo", 3, 1, 0),
     ],
   )
   check.eq(
@@ -681,10 +690,156 @@ pub fn mescla_desempenho_examples() {
       Desempenho("Santos", 1, 1, 1),
     ]),
     [
-      Desempenho(time: "Santos", pontos: 5, vitorias: 2, saldo_gol: 2),
-      Desempenho(time: "Flamengo", pontos: 6, vitorias: 2, saldo_gol: 4),
-      Desempenho(time: "Botafogo", pontos: 6, vitorias: 2, saldo_gol: 6),
-      Desempenho(time: "Atletico-MG", pontos: 1, vitorias: 0, saldo_gol: 0),
+      Desempenho("Santos", 5, 2, 2),
+      Desempenho("Flamengo", 6, 2, 4),
+      Desempenho("Botafogo", 6, 2, 6),
+      Desempenho("Atletico-MG", 1, 0, 0),
+    ],
+  )
+  check.eq(
+    mescla_desempenho([
+      Desempenho("Flamengo", 0, 0, -1),
+      Desempenho("Santos", 3, 1, 1),
+      Desempenho("Flamengo", 3, 1, 1),
+      Desempenho("Santos", 1, 0, 0),
+      Desempenho("Botafogo", 3, 1, 4),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Santos", 4, 5, 6),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Flamengo", 3, 1, 4),
+      Desempenho("Santos", 1, 1, 1),
+    ]),
+    [
+      Desempenho("Santos", 9, 7, 8),
+      Desempenho("Flamengo", 6, 2, 4),
+      Desempenho("Botafogo", 6, 2, 6),
+      Desempenho("Atletico-MG", 1, 0, 0),
+    ],
+  )
+  check.eq(
+    mescla_desempenho([
+      Desempenho("Flamengo", 0, 0, -1),
+      Desempenho("Santos", 3, 1, 1),
+      Desempenho("Flamengo", 3, 1, 1),
+      Desempenho("Botafogo", 3, 1, 4),
+      Desempenho("Santos", 1, 0, 0),
+      Desempenho("Internacional", 3, 1, 4),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Santos", 4, 5, 6),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Flamengo", 3, 1, 4),
+      Desempenho("Santos", 1, 1, 1),
+    ]),
+    [
+      Desempenho("Santos", 9, 7, 8),
+      Desempenho("Flamengo", 6, 2, 4),
+      Desempenho("Internacional", 7, 2, 9),
+      Desempenho("Botafogo", 6, 2, 6),
+      Desempenho("Atletico-MG", 1, 0, 0),
+    ],
+  )
+  check.eq(
+    mescla_desempenho([
+      Desempenho("Flamengo", 0, 0, -1),
+      Desempenho("Santos", 3, 1, 1),
+      Desempenho("Flamengo", 3, 1, 1),
+      Desempenho("Botafogo", 3, 1, 4),
+      Desempenho("Santos", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Santos", 4, 5, 6),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Flamengo", 3, 1, 4),
+      Desempenho("Santos", 1, 1, 1),
+    ]),
+    [
+      Desempenho("Santos", 9, 7, 8),
+      Desempenho("Flamengo", 6, 2, 4),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Botafogo", 6, 2, 6),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+    ],
+  )
+  check.eq(
+    mescla_desempenho([
+      Desempenho("Flamengo", 0, 0, -1),
+      Desempenho("Santos", 3, 1, 1),
+      Desempenho("Flamengo", 3, 1, 1),
+      Desempenho("Botafogo", 3, 1, 4),
+      Desempenho("Santos", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Santos", 4, 5, 6),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Flamengo", 3, 1, 4),
+      Desempenho("Santos", 1, 1, 1),
+    ]),
+    [
+      Desempenho("Santos", 9, 7, 8),
+      Desempenho("Flamengo", 6, 2, 4),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Botafogo", 6, 2, 6),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+    ],
+  )
+  check.eq(
+    mescla_desempenho([
+      Desempenho("Flamengo", 0, 0, -1),
+      Desempenho("Santos", 3, 1, 1),
+      Desempenho("Flamengo", 3, 1, 1),
+      Desempenho("Botafogo", 3, 1, 4),
+      Desempenho("Santos", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Cuiaba", 3, 1, 4),
+      Desempenho("Santos", 4, 5, 6),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Flamengo", 3, 1, 4),
+      Desempenho("Santos", 1, 1, 1),
+      Desempenho("Cuiaba", 4, 1, 5),
+    ]),
+    [
+      Desempenho("Cuiaba", 7, 2, 9),
+      Desempenho("Santos", 9, 7, 8),
+      Desempenho("Flamengo", 6, 2, 4),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Botafogo", 6, 2, 6),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+    ],
+  )
+  check.eq(
+    mescla_desempenho([
+      Desempenho("Flamengo", 0, 0, -1),
+      Desempenho("Santos", 3, 1, 1),
+      Desempenho("Flamengo", 3, 1, 1),
+      Desempenho("Mirassol", 3, 1, 4),
+      Desempenho("Santos", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Cuiaba", 3, 1, 4),
+      Desempenho("Santos", 4, 5, 6),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Flamengo", 3, 1, 4),
+      Desempenho("Santos", 1, 1, 1),
+      Desempenho("Cuiaba", 4, 1, 5),
+    ]),
+    [
+      Desempenho("Cuiaba", 7, 2, 9),
+      Desempenho("Santos", 9, 7, 8),
+      Desempenho("Flamengo", 6, 2, 4),
+      Desempenho("Internacional", 4, 1, 5),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Atletico-MG", 1, 0, 0),
+      Desempenho("Gremio", 3, 1, 4),
+      Desempenho("Mirassol", 3, 1, 4),
     ],
   )
 }
@@ -700,6 +855,7 @@ pub fn cria_lista_desempenho_examples() {
   let assert Ok(gol3) = new_gol(2)
   let assert Ok(gol4) = new_gol(1)
   let assert Ok(gol5) = new_gol(5)
+  let assert Ok(gol6) = new_gol(2)
   let assert Ok(gol7) = new_gol(6)
   let assert Ok(gol8) = new_gol(9)
   check.eq(
@@ -733,6 +889,132 @@ pub fn cria_lista_desempenho_examples() {
       Desempenho("Goias", 3, 1, 8),
     ],
   )
+  check.eq(
+    cria_lista_desempenho([
+      Resultado("Flamengo", gol6, "Santos", gol3),
+      Resultado("Flamengo", gol8, "Botafogo", gol1),
+      Resultado("Atletico-MG", gol3, "Athletico", gol4),
+    ]),
+    [
+      Desempenho("Flamengo", 1, 0, 0),
+      Desempenho("Santos", 1, 0, 0),
+      Desempenho("Flamengo", 3, 1, 5),
+      Desempenho("Botafogo", 0, 0, -5),
+      Desempenho("Atletico-MG", 3, 1, 1),
+      Desempenho("Athletico", 0, 0, -1),
+    ],
+  )
+  check.eq(
+    cria_lista_desempenho([
+      Resultado("Corinthians", gol8, "Santos", gol3),
+      Resultado("Flamengo", gol3, "Botafogo", gol1),
+      Resultado("Atletico-MG", gol1, "Corinthians", gol2),
+    ]),
+    [
+      Desempenho("Corinthians", 3, 1, 7),
+      Desempenho("Santos", 0, 0, -7),
+      Desempenho("Flamengo", 0, 0, -2),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Atletico-MG", 3, 1, 1),
+      Desempenho("Corinthians", 0, 0, -1),
+    ],
+  )
+  check.eq(
+    cria_lista_desempenho([
+      Resultado("Corinthians", gol8, "Santos", gol3),
+      Resultado("Flamengo", gol3, "Botafogo", gol1),
+      Resultado("Atletico-MG", gol1, "Corinthians", gol2),
+      Resultado("Gremio", gol3, "Cuiaba", gol1),
+      Resultado("Fluminense", gol3, "Vasco", gol1),
+    ]),
+    [
+      Desempenho("Corinthians", 3, 1, 7),
+      Desempenho("Santos", 0, 0, -7),
+      Desempenho("Flamengo", 0, 0, -2),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Atletico-MG", 3, 1, 1),
+      Desempenho("Corinthians", 0, 0, -1),
+      Desempenho("Gremio", 0, 0, -2),
+      Desempenho("Cuiaba", 3, 1, 2),
+      Desempenho("Fluminense", 0, 0, -2),
+      Desempenho("Vasco", 3, 1, 2),
+    ],
+  )
+  check.eq(
+    cria_lista_desempenho([
+      Resultado("Sao-Paulo", gol4, "Bragantino", gol6),
+      Resultado("Fluminense", gol1, "Juventude", gol1),
+      Resultado("Criciuma", gol1, "Corinthians", gol5),
+      Resultado("Bahia", gol5, "Palmeiras", gol7),
+      Resultado("Fortaleza", gol2, "Vitoria", gol7),
+    ]),
+    [
+      Desempenho("Sao-Paulo", 0, 0, -1),
+      Desempenho("Bragantino", 3, 1, 1),
+      Desempenho("Fluminense", 1, 0, 0),
+      Desempenho("Juventude", 1, 0, 0),
+      Desempenho("Criciuma", 0, 0, -1),
+      Desempenho("Corinthians", 3, 1, 1),
+      Desempenho("Bahia", 0, 0, -1),
+      Desempenho("Palmeiras", 3, 1, 1),
+      Desempenho("Fortaleza", 0, 0, -3),
+      Desempenho("Vitoria", 3, 1, 3),
+    ],
+  )
+  check.eq(
+    cria_lista_desempenho([
+      Resultado("Sao-Paulo", gol4, "Bragantino", gol6),
+      Resultado("Fluminense", gol1, "Juventude", gol1),
+      Resultado("Criciuma", gol1, "Corinthians", gol5),
+      Resultado("Bahia", gol5, "Palmeiras", gol7),
+      Resultado("Fortaleza", gol2, "Vitoria", gol7),
+      Resultado("Atletico-Go", gol5, "Palmeiras", gol3),
+      Resultado("Internacional", gol6, "Botafogo", gol7),
+    ]),
+    [
+      Desempenho("Sao-Paulo", 0, 0, -1),
+      Desempenho("Bragantino", 3, 1, 1),
+      Desempenho("Fluminense", 1, 0, 0),
+      Desempenho("Juventude", 1, 0, 0),
+      Desempenho("Criciuma", 0, 0, -1),
+      Desempenho("Corinthians", 3, 1, 1),
+      Desempenho("Bahia", 0, 0, -1),
+      Desempenho("Palmeiras", 3, 1, 1),
+      Desempenho("Fortaleza", 0, 0, -3),
+      Desempenho("Vitoria", 3, 1, 3),
+      Desempenho("Atletico-Go", 3, 1, 3),
+      Desempenho("Palmeiras", 0, 0, -3),
+      Desempenho("Internacional", 0, 0, -4),
+      Desempenho("Botafogo", 3, 1, 4),
+    ],
+  )
+  check.eq(
+    cria_lista_desempenho([
+      Resultado("Criciuma", gol6, "Corinthians", gol5),
+      Resultado("Sao-Paulo", gol1, "Bragantino", gol3),
+      Resultado("Internacional", gol6, "Botafogo", gol1),
+      Resultado("Fluminense", gol2, "Juventude", gol1),
+      Resultado("Atletico-Go", gol5, "Palmeiras", gol7),
+      Resultado("Bahia", gol5, "Palmeiras", gol7),
+      Resultado("Fortaleza", gol5, "Vitoria", gol6),
+    ]),
+    [
+      Desempenho("Criciuma", 0, 0, -3),
+      Desempenho("Corinthians", 3, 1, 3),
+      Desempenho("Sao-Paulo", 3, 1, 2),
+      Desempenho("Bragantino", 0, 0, -2),
+      Desempenho("Internacional", 0, 0, -2),
+      Desempenho("Botafogo", 3, 1, 2),
+      Desempenho("Fluminense", 0, 0, -1),
+      Desempenho("Juventude", 3, 1, 1),
+      Desempenho("Atletico-Go", 0, 0, -1),
+      Desempenho("Palmeiras", 3, 1, 1),
+      Desempenho("Bahia", 0, 0, -1),
+      Desempenho("Palmeiras", 3, 1, 1),
+      Desempenho("Fortaleza", 3, 1, 3),
+      Desempenho("Vitoria", 0, 0, -3),
+    ],
+  )
 }
 
 pub fn cria_desempenho(result: Resultado) -> List(Desempenho) {
@@ -757,6 +1039,45 @@ pub fn cria_desempenho(result: Resultado) -> List(Desempenho) {
       }
     }
   }
+}
+
+pub fn cria_desempenho_examples() {
+  let assert Ok(gol1) = new_gol(4)
+  let assert Ok(gol2) = new_gol(3)
+  let assert Ok(gol3) = new_gol(2)
+  let assert Ok(gol4) = new_gol(1)
+  let assert Ok(gol5) = new_gol(5)
+  let assert Ok(gol6) = new_gol(2)
+  let assert Ok(gol7) = new_gol(6)
+  let assert Ok(gol8) = new_gol(9)
+  check.eq(cria_desempenho(Resultado("Santos", gol1, "Flamengo", gol4)), [
+    Desempenho("Santos", 3, 1, 3),
+    Desempenho("Flamengo", 0, 0, -3),
+  ])
+  check.eq(cria_desempenho(Resultado("Flamengo", gol1, "Botafogo", gol1)), [
+    Desempenho("Flamengo", 1, 0, 0),
+    Desempenho("Botafogo", 1, 0, 0),
+  ])
+  check.eq(cria_desempenho(Resultado("Flamengo", gol4, "Botafogo", gol3)), [
+    Desempenho("Flamengo", 0, 0, -1),
+    Desempenho("Botafogo", 3, 1, 1),
+  ])
+  check.eq(cria_desempenho(Resultado("Gremio", gol4, "Internacional", gol8)), [
+    Desempenho("Gremio", 0, 0, -8),
+    Desempenho("Internacional", 3, 1, 8),
+  ])
+  check.eq(cria_desempenho(Resultado("Palmeiras", gol5, "Cuiaba", gol2)), [
+    Desempenho("Palmeiras", 3, 1, 2),
+    Desempenho("Cuiaba", 0, 0, -2),
+  ])
+  check.eq(cria_desempenho(Resultado("Flamengo", gol6, "Fluminense", gol4)), [
+    Desempenho("Flamengo", 3, 1, 1),
+    Desempenho("Fluminense", 0, 0, -1),
+  ])
+  check.eq(cria_desempenho(Resultado("Coritnhians", gol8, "Sao-Paulo", gol7)), [
+    Desempenho("Coritnhians", 3, 1, 3),
+    Desempenho("Sao-Paulo", 0, 0, -3),
+  ])
 }
 
 //Cria uma lista de *resultados* baseado nas strings *jogos* de entrada, ao mesmo tempo
