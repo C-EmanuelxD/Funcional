@@ -50,59 +50,105 @@ pub fn get_valor(num: TipoValor) -> Option(Int) {
 
 //Verifica se os parenteses estão dispostos de forma correta,
 //verificando a quantidade de parenteses direitos e esquerdos.
-//FUNÇÃO ESTA ERRONEA.
-pub fn verifica_paresenteses(lst: List(String)) -> Result(Nil, Erros) {
-  case
-    {
-      list.fold(lst, 0, verifica_parenteses_abertos)
-      + list.fold(lst, 0, verifica_parenteses_fechados)
+pub fn verifica_parenteses(lst: List(String)) -> Result(Bool, Erros) {
+  list.fold(lst, Ok(0), fn(acc, elem) {
+    use a <- result.try(acc)
+    case elem {
+      "(" -> Ok(a + 1)
+      ")" if a > 0 -> Ok(a - 1)
+      ")" -> Error(ParentesesInvalidos)
+      _ -> Ok(a)
     }
-    != 0
-  {
-    True -> Error(ParentesesInvalidos)
-    False -> Ok(Nil)
-  }
-}
-//TAMBEM ERRONEA
-pub fn verifica_parenteses_abertos(acc: Int, elem: String) -> Int {
-  case elem == "(" {
-    True -> acc + 1
-    False -> acc
-  }
-}
-//TAMBEM ERRONEA
-pub fn verifica_parenteses_fechados(acc: Int, elem: String) -> Int {
-  case elem == ")" {
-    True -> acc - 1
-    False -> acc
-  }
+  })
+  |> result.try(fn(final_balance) {
+    case final_balance {
+      0 -> Ok(True)
+      _ -> Error(ParentesesInvalidos)
+    }
+  })
 }
 
+pub fn verifica_parenteses_examples() {
+  check.eq(
+    verifica_parenteses(["(", ")", ")", "("]),
+    Error(ParentesesInvalidos),
+  )
+  check.eq(verifica_parenteses(["(", ")", ")"]), Error(ParentesesInvalidos))
+  check.eq(verifica_parenteses(["(", "(", ")"]), Error(ParentesesInvalidos))
+  check.eq(verifica_parenteses(["(", ")"]), Ok(True))
+  // Teste com sequência correta
+  check.eq(verifica_parenteses(["(", ")", "(", ")"]), Ok(True))
+
+  // Teste com mais parênteses fechados que abertos
+  check.eq(verifica_parenteses(["(", ")", ")"]), Error(ParentesesInvalidos))
+
+  // Teste com mais parênteses abertos que fechados
+  check.eq(verifica_parenteses(["(", "(", ")"]), Error(ParentesesInvalidos))
+
+  // Teste com sequência vazia
+  check.eq(verifica_parenteses([]), Ok(True))
+
+  // Teste com sequência contendo apenas parênteses abertos
+  check.eq(verifica_parenteses(["(", "(", "("]), Error(ParentesesInvalidos))
+
+  // Teste com sequência contendo apenas parênteses fechados
+  check.eq(verifica_parenteses([")", ")", ")"]), Error(ParentesesInvalidos))
+
+  // Teste com parênteses balanceados em ordem alternada
+  check.eq(verifica_parenteses(["(", ")", "(", "(", ")", ")"]), Ok(True))
+
+  // Teste com sequência contendo caracteres não relacionados
+  check.eq(verifica_parenteses(["(", "a", ")", "b", "(", ")"]), Ok(True))
+
+  // Teste com parênteses desbalanceados misturados
+  check.eq(
+    verifica_parenteses(["(", ")", "(", ")", ")"]),
+    Error(ParentesesInvalidos),
+  )
+
+  // Teste com parênteses balanceados de forma correta
+  check.eq(verifica_parenteses(["(", "(", ")", ")"]), Ok(True))
+}
 
 //Função que recebe uma *lista* com os *valores* dentro do TipoValor em
 //notação infixa e a transforma em notação pós-fixa, organizando
 //os valores de acordo com o requerimento da notação.
-pub fn organiza_posfixo(lst: List(TipoValor)) -> #(List(TipoValor), List(TipoValor)){
-  list.fold(lst, #([], []), fn(acc, elem){
-    case elem{
-      Operador(simbolo) -> case acc.1{
-        [] -> #(acc.0, list.append(acc.1, [Operador(simbolo)]))
-        [primeiro, ..] -> case prioridade(simbolo) >= prioridade(case primeiro{
-          Operador(x) -> x
-          _ -> Div
-        }){
-          True -> {
-            let nova_pilha_antes = list.append(acc.1, [Operador(simbolo)])
-            let nova_pilha = list.reverse(list.filter(nova_pilha_antes, fn(a){a != Operador(ParenteseDir) || a!= Operador(ParenteseEsq)}))
-            #(list.append(acc.0, nova_pilha), [])
+pub fn organiza_posfixo(lst: List(TipoValor)) -> List(TipoValor) {
+  let #(tpl1, tpl2) =
+    list.fold(lst, #([], []), fn(acc, elem) {
+      case elem {
+        Operador(simbolo) ->
+          case acc.1 {
+            [] -> #(acc.0, list.append(acc.1, [Operador(simbolo)]))
+            [primeiro, _] ->
+              case
+                prioridade(simbolo)
+                >= prioridade(case primeiro {
+                  Operador(x) -> x
+                  _ -> Div
+                })
+              {
+                True -> {
+                  let nova_pilha_antes = list.append(acc.1, [Operador(simbolo)])
+                  let nova_pilha =
+                    list.reverse(
+                      list.filter(nova_pilha_antes, fn(a) {
+                        a != Operador(ParenteseDir)
+                        || a != Operador(ParenteseEsq)
+                      }),
+                    )
+                  #(list.append(acc.0, nova_pilha), [])
+                }
+                False -> #(acc.0, list.append(acc.1, [Operador(simbolo)]))
+              }
+            [_, ..] -> #(acc.0, list.append(acc.1, [Operador(simbolo)]))
           }
-          False -> #(acc.0, list.append(acc.1, [Operador(simbolo)]))
-        }
+        Numero(num) -> #(list.append(acc.0, [Numero(num)]), acc.1)
+        _ -> #(acc.0, acc.1)
       }
-      Numero(num) -> #(list.append(acc.0, [Numero(num)]), acc.1)
-      _ -> #(acc.0, acc.1)
-    }
-  })
+    })
+
+  list.append(tpl1, list.reverse(tpl2))
 }
 
 //pub fn organiza_posfixo_examples(){
@@ -112,15 +158,13 @@ pub fn organiza_posfixo(lst: List(TipoValor)) -> #(List(TipoValor), List(TipoVal
 //}
 
 //4+6*2
-pub fn prioridade(simb: TipoSimbolo) -> Int{
-  case simb{
+pub fn prioridade(simb: TipoSimbolo) -> Int {
+  case simb {
     ParenteseDir | ParenteseEsq -> 3
     Mul | Div -> 2
     Sub | Soma -> 1
   }
 }
-
-
 
 //Função que a partir da pilha em questão faz as operações
 //em notação pós-fixa. Para cada *numero* dentro da lista
@@ -201,7 +245,7 @@ pub fn empilha(acc: List(TipoValor), elem: TipoValor) -> List(TipoValor) {
         [primeiro, segundo] -> [desempilha_calcula(primeiro, segundo, simbolo)]
         _ -> acc
       }
-    _ -> [] 
+    _ -> []
   }
 }
 
