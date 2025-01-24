@@ -1,5 +1,9 @@
+import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/order
+import gleam/result
+import gleam/string
 import sgleam/check
 
 pub type Erros {
@@ -24,6 +28,40 @@ pub fn get_valor(num: TipoValor) -> Option(Int) {
   case num {
     Numero(valor) -> Some(valor)
     Operador(_) -> None
+  }
+}
+
+pub fn transforma_em_fixo(a: String) -> Result(List(String), Erros) {
+  let lst = string.split(a, "")
+  use _ <- result.try(verifica_paresenteses(lst))
+  
+
+}
+
+pub fn verifica_paresenteses(lst: List(String)) -> Result(Nil, Erros) {
+  case
+    {
+      list.fold(lst, 0, verifica_parenteses_abertos)
+      + list.fold(lst, 0, verifica_parenteses_fechados)
+    }
+    != 0
+  {
+    True -> Error(ParentesesInvalidos)
+    False -> Ok(Nil)
+  }
+}
+
+pub fn verifica_parenteses_abertos(acc: Int, elem: String) -> Int {
+  case elem == "(" {
+    True -> acc + 1
+    False -> acc
+  }
+}
+
+pub fn verifica_parenteses_fechados(acc: Int, elem: String) -> Int {
+  case elem == ")" {
+    True -> acc - 1
+    False -> acc
   }
 }
 
