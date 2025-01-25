@@ -10,13 +10,11 @@ pub type Erros {
   ParentesesInvalidos
   //Caso de letras ou outros tipos de simbolos que não são corretos no calculo
   SimboloInvalido
-  //Caso não exista nada dentro da expressão
-  ExpressaoVaziaz
   //Caso de problemas com pilha vazia dentro das pilhas
   PilhaVazia
   //Caso alguma entrada esteja disposta de forma incorreta
   EntradaInvalida
-
+  //Erro de caso algumas listas estejam vazias
   ListaVazia
 }
 
@@ -42,8 +40,8 @@ pub type TipoValor {
   Numero(valor: Int)
 }
 
-//Retorna o valor Inteiro dentro do Numero, em formato de option, caso seja
-//um operador retorna None.
+//Retorna o valor Inteiro dentro do Numero, caso algum outro formato
+//seja inserido, retorna erro.
 pub fn get_valor(num: TipoValor) -> Result(Int, Erros) {
   case num {
     Numero(valor) -> Ok(valor)
@@ -51,6 +49,8 @@ pub fn get_valor(num: TipoValor) -> Result(Int, Erros) {
   }
 }
 
+//Retorna o *simbolo* dentro do Operador caso outro
+//tipo de valor seja inserido retorna erro
 pub fn get_simbolo(simb: TipoValor) -> Result(TipoSimbolo, Erros) {
   case simb {
     Operador(x) -> Ok(x)
@@ -58,12 +58,116 @@ pub fn get_simbolo(simb: TipoValor) -> Result(TipoSimbolo, Erros) {
   }
 }
 
+
+pub fn main_calculadora(entrada: String) -> Result(Int, Erros){
+  use str <- result.try(normaliza_lista(entrada))
+  use str_org <- result.try(organiza_posfixo(str))
+  use resultado <- result.try(calc_pilha(str_org))
+
+  Ok(resultado)
+}
+
+
+pub fn main_calculadora_examples(){
+  check.eq(main_calculadora(""), Error(EntradaInvalida))
+  check.eq(main_calculadora("7"), Ok(7))
+  check.eq(main_calculadora("9+9"), Ok(18))
+  check.eq(main_calculadora("9+9*9"), Ok(90))
+  check.eq(main_calculadora("(9+9)*9"), Ok(162))
+  check.eq(main_calculadora("7+6/3"), Ok(9))
+  check.eq(main_calculadora("(7+6)/3"), Ok(4))
+  check.eq(main_calculadora("(21+22)/(8+9)"), Ok(2))
+  check.eq(main_calculadora("((21+22)/(8+9))*(-1)"), Ok(-2))
+  check.eq(main_calculadora("(-8/2)*3+(-4)-6"), Ok(-22))
+  check.eq(main_calculadora("4+7+8/"), Error(EntradaInvalida))
+  check.eq(main_calculadora("4+a+8"), Error(SimboloInvalido))
+  check.eq(main_calculadora("((4+4)+8"), Error(ParentesesInvalidos))
+}
+
+
+
 pub fn normaliza_lista(entrada: String) -> Result(List(TipoValor), Erros) {
   let separado = string.replace(entrada, " ", "") |> string.split("")
   use _ <- result.try(separado |> verifica_parenteses)
   use resultado <- result.try(list.fold(separado, Ok([]), concatena_valores))
   list.map(list.reverse(resultado), string_to_valores)
   |> result.all
+}
+
+pub fn normaliza_lista_examples() {
+  check.eq(
+    normaliza_lista("(2+21)-1*2"),
+    Ok([
+      Operador(ParenteseEsq),
+      Numero(2),
+      Operador(Soma),
+      Numero(21),
+      Operador(ParenteseDir),
+      Operador(Sub),
+      Numero(1),
+      Operador(Mul),
+      Numero(2),
+    ]),
+  )
+  check.eq(
+    normaliza_lista("-2+3"),
+    Ok([Numero(-2), Operador(Soma), Numero( 3)]),
+  )
+  check.eq(
+    normaliza_lista("12+34"),
+    Ok([Numero(12), Operador(Soma), Numero(34)]),
+  )
+  check.eq(normaliza_lista("(3*/2"), Error(ParentesesInvalidos))
+  check.eq(
+    normaliza_lista("(2+21)-1*2"),
+    Ok([
+      Operador(ParenteseEsq),
+      Numero(2),
+      Operador(Soma),
+      Numero(21),
+      Operador(ParenteseDir),
+      Operador(Sub),
+      Numero(1),
+      Operador(Mul),
+      Numero(2),
+    ]),
+  )
+  check.eq(
+    normaliza_lista("-2+3"),
+    Ok([Numero( -2), Operador( Soma), Numero( 3)]),
+  )
+  check.eq(
+    normaliza_lista("12+34"),
+    Ok([Numero(12), Operador(Soma), Numero(34)]),
+  )
+  check.eq(normaliza_lista("(3*/2"), Error(ParentesesInvalidos))
+  check.eq(
+    normaliza_lista("(-2+21)-1*2"),
+    Ok([
+      Operador( ParenteseEsq),
+      Numero(-2),
+      Operador(Soma),
+      Numero( 21),
+      Operador( ParenteseDir),
+      Operador( Sub),
+      Numero( 1),
+      Operador( Mul),
+      Numero( 2),
+    ]),
+  )
+  check.eq(
+    normaliza_lista("-(-3+4)*2"),
+    Ok([
+      Operador( Sub),
+      Operador( ParenteseEsq),
+      Numero( -3),
+      Operador( Soma),
+      Numero( 4),
+      Operador( ParenteseDir),
+      Operador( Mul),
+      Numero( 2),
+    ]),
+  )
 }
 
 pub fn string_to_valores(elem: String) -> Result(TipoValor, Erros) {
@@ -131,6 +235,8 @@ pub fn agrupa_valores(
     _ -> Ok(list.append([elem], acc))
   }
 }
+
+
 
 pub fn verifica_num(elem: String) -> Bool {
   case int.parse(elem) {
