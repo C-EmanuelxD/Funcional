@@ -1,10 +1,9 @@
 import gleam/bool
 import gleam/int
 import gleam/list
-import gleam/order
 import gleam/result
-import sgleam/check
 import gleam/string
+import sgleam/check
 
 pub type Erros {
   //Caso de parenteses dispostos de forma incorreta
@@ -59,15 +58,13 @@ pub fn get_simbolo(simb: TipoValor) -> Result(TipoSimbolo, Erros) {
   }
 }
 
-pub fn normalizacao_lista(
-  entrada: String,
-) -> Result(List(Result(TipoValor, Erros)), Erros) {
-  let separado = string.split(entrada, "")
-  // ["(", "-", "2", "+", "2", "1", ")", "-", "1", "*", "2"]
+pub fn normaliza_lista(entrada: String) -> Result(List(TipoValor), Erros) {
+  let separado = string.replace(entrada, " ", "") |> string.split("")
+  use _ <- result.try(separado |> verifica_parenteses)
   use resultado <- result.try(list.fold(separado, Ok([]), concatena_valores))
-  Ok(list.map(list.reverse(resultado), string_to_valores))
+  list.map(list.reverse(resultado), string_to_valores)
+  |> result.all
 }
-
 
 pub fn string_to_valores(elem: String) -> Result(TipoValor, Erros) {
   case elem {
@@ -93,9 +90,7 @@ pub fn concatena_valores(
   use acc <- result.try(acumulador)
   case acc {
     [] -> Ok(list.append([elem], acc))
-    [_] -> agrupa_valores(acc, elem)
-    [_, _] -> agrupa_valores(acc, elem)
-    [_, _, ..] -> agrupa_valores(acc, elem)
+    _ -> agrupa_valores(acc, elem)
   }
 }
 
@@ -105,40 +100,35 @@ pub fn agrupa_valores(
   acc: List(String),
   elem: String,
 ) -> Result(List(String), Erros) {
-  let pilha_topo = list.take(acc, 2)
   let pilha_nova = list.drop(acc, 1)
   use a <- result.try(
-    result.map_error(list.first(pilha_topo), fn(_) { ListaVazia }),
+    list.take(acc, 2)
+    |> list.first
+    |> result.map_error(fn(_) { ListaVazia }),
   )
   use b <- result.try(
-    result.map_error(list.last(pilha_topo), fn(_) { ListaVazia }),
+    list.take(acc, 2)
+    |> list.last
+    |> result.map_error(fn(_) { ListaVazia }),
   )
+
   let tam = string.length(a)
   use first <- result.try(
-    result.map_error(string.first(a), fn(_) { ListaVazia }),
+    string.first(a)
+    |> result.map_error(fn(_) { ListaVazia }),
   )
   let num = verifica_num(a)
   let num2 = verifica_num(b)
-
   // se entrar no true e colocar o - no inicio significa que vai ser 
-  case list.length(acc) == 0 {
-    True -> Ok(list.append([elem], acc))
-    False ->
-      case elem {
-        "-" if a == "(" -> Ok(list.append([elem], acc))
-        "-" -> Ok(list.append([elem], acc))
-        "+" -> Ok(list.append([elem], acc))
-        "*" -> Ok(list.append([elem], acc))
-        "/" -> Ok(list.append([elem], acc))
-        "(" -> Ok(list.append([elem], acc))
-        ")" -> Ok(list.append([elem], acc))
-        _ if b == ")" && a == "-" -> Ok(list.append([elem], acc))
-        _ if num2 && a == "-" -> Ok(list.append([elem], acc))
-        _ if tam >= 2 && first == "-" || a == "-" ->
-          Ok(list.append([string.append(a, elem)], pilha_nova))
-        _ if num -> Ok(list.append([string.append(a, elem)], pilha_nova))
-        _ -> Ok(list.append([elem], acc))
-      }
+  case elem {
+    "-" if a == "(" -> Ok(list.append([elem], acc))
+    "-" | "+" | "*" | "/" | "(" | ")" -> Ok(list.append([elem], acc))
+    _ if b == ")" && a == "-" -> Ok(list.append([elem], acc))
+    _ if num2 && a == "-" -> Ok(list.append([elem], acc))
+    _ if tam >= 2 && first == "-" || a == "-" ->
+      Ok(list.append([string.append(a, elem)], pilha_nova))
+    _ if num -> Ok(list.append([string.append(a, elem)], pilha_nova))
+    _ -> Ok(list.append([elem], acc))
   }
 }
 
@@ -332,7 +322,6 @@ pub fn processa_valor(
   }
 }
 
-
 //Empilha um valor dentro de uma pilha
 pub fn empilha(lst: List(a), valor: a) -> List(a) {
   [valor, ..lst]
@@ -418,14 +407,9 @@ pub fn empilha_operadores(
   )
   use #(lista, simbolo_topo) <- result.try(desempilha(pilha.1))
   use simbolo_top <- result.try(get_simbolo(simbolo_topo))
-  case int.compare(peso(simb), peso(simbolo_top)) {
-    order.Gt -> Ok(#(pilha.0, empilha(pilha.1, Operador(simb))))
-    order.Eq ->
-      Ok(#(
-        list.append(pilha.0, [Operador(simbolo_top)]),
-        empilha(lista, Operador(simb)),
-      ))
-    order.Lt ->
+  case peso(simb) > peso(simbolo_top) {
+    True -> Ok(#(pilha.0, empilha(pilha.1, Operador(simb))))
+    False ->
       Ok(#(
         list.append(pilha.0, [Operador(simbolo_top)]),
         empilha(lista, Operador(simb)),
@@ -577,6 +561,7 @@ pub fn empilha_calc(
       }
   }
 }
+
 
 // Faz o calculo baseado em dois valores e um operador.
 pub fn desempilha_calcula(
