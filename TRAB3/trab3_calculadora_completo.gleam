@@ -150,7 +150,12 @@ pub fn so_numero(lst: List(String)) -> Bool {
   |> list.all(fn(a) { a == True })
 }
 
-
+/// recebe uma string, retira todos os espacos de dentro da string, depois faz um split 
+/// separando cada caracter, apos isso chama a funcao de verificar parenteses,
+/// depois a funcao concatena valores vai deixar tudo correto na lista, por exemplo:
+/// (-1+4) o sinal de magnitude eh do 1 entao vai retornar ficar ["-1", "+", "4"],
+/// depois converte para o *TipoValores*, com a lista de forma a forma original e tira todos os Oks 
+/// de dentro da lista retornando somente um Ok com tudo dentro
 pub fn normaliza_lista(entrada: String) -> Result(List(TipoValor), Erros) {
   let separado = string.replace(entrada, " ", "") |> string.split("")
   use _ <- result.try(separado |> verifica_parenteses)
@@ -229,7 +234,8 @@ pub fn normaliza_lista_examples() {
     ]),
   )
 }
-
+/// pega a string e coloca em seu respectivo TipoValor, se for um operador ira para Operadar, 
+/// e se for numero para Numero(num)
 pub fn string_to_valores(elem: String) -> Result(TipoValor, Erros) {
   case elem {
     "-" -> Ok(Operador(Sub))
@@ -258,8 +264,11 @@ pub fn concatena_valores(
   }
 }
 
-/// recebe um acumulador e com base do elemento no topo, consegue organizar se concatena numeros, 
-/// negativos, ou entao se so faz um append no acumulador e retorna
+/// recebe um acumulador e com base do elemento no topo, consegue gerenciar a agregacao de elemtnos,
+/// concatenar digitos de numeros, sinais negativos, operadores matematicos, e parenteses
+/// com base em regras, os operadoes +, *, /, sao sempre adicionados como novos elemtnos,
+/// - antes de um numero ou depois de um parenteses eh tratado diferente, digitos sao concatenados se 
+/// o topo da pilha for um digito 
 pub fn agrupa_valores(
   acc: List(String),
   elem: String,
