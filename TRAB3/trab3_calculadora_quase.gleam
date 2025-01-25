@@ -1,17 +1,9 @@
-<<<<<<< HEAD
-import gleam/bool
-import gleam/int
-import gleam/list
-import gleam/order
-import gleam/result
-=======
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/order
 import gleam/result
 import gleam/string
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 import sgleam/check
 
 pub type Erros {
@@ -20,10 +12,10 @@ pub type Erros {
   //Caso de letras ou outros tipos de simbolos que não são corretos no calculo
   SimboloInvalido
   //Caso não exista nada dentro da expressão
-  ExpressaoVaziaz
-  //Caso de problemas com pilha vazia dentro das pilhas
+  ExpressaoVazia
+
   PilhaVazia
-  //Caso alguma entrada esteja disposta de forma incorreta
+
   EntradaInvalida
 
   ListaVazia
@@ -49,14 +41,17 @@ pub type TipoValor {
   Operador(simbolo: TipoSimbolo)
   //Numero seriam os valores numericos carregados dentro da lista
   Numero(valor: Int)
+  //Quando nenhum valor é necessário
+  NoneTp
 }
 
 //Retorna o valor Inteiro dentro do Numero, em formato de option, caso seja
 //um operador retorna None.
-pub fn get_valor(num: TipoValor) -> Result(Int, Erros) {
+pub fn get_valor(num: TipoValor) -> Option(Int) {
   case num {
-    Numero(valor) -> Ok(valor)
-    Operador(_) -> Error(EntradaInvalida)
+    Numero(valor) -> Some(valor)
+    Operador(_) -> None
+    NoneTp -> None
   }
 }
 
@@ -228,103 +223,10 @@ pub fn conta_parentese(
 //notação infixa e a transforma em notação pós-fixa, organizando
 //os valores de acordo com o requerimento da notação.
 pub fn organiza_posfixo(lst: List(TipoValor)) -> Result(List(TipoValor), Erros) {
-  use #(saida, pilha) <- result.try(list.fold(
-    lst,
-    Ok(#([], [])),
-    processa_valor,
-  ))
+  use #(saida, pilha) <- result.try(list.fold(lst, Ok(#([], [])), foda_gorda))
   Ok(list.append(saida, pilha))
 }
 
-<<<<<<< HEAD
-pub fn organiza_posfixo_examples() {
-  check.eq(
-    organiza_posfixo([
-      Numero(4),
-      Operador(Soma),
-      Numero(6),
-      Operador(Mul),
-      Numero(2),
-    ]),
-    Ok([Numero(4), Numero(6), Numero(2), Operador(Mul), Operador(Soma)]),
-  )
-  check.eq(
-    organiza_posfixo([
-      Operador(ParenteseEsq),
-      Numero(4),
-      Operador(Soma),
-      Numero(6),
-      Operador(ParenteseDir),
-      Operador(Mul),
-      Numero(2),
-    ]),
-    Ok([Numero(4), Numero(6), Operador(Soma), Numero(2), Operador(Mul)]),
-  )
-  check.eq(
-    organiza_posfixo([
-      Operador(ParenteseEsq),
-      Numero(4),
-      Operador(Div),
-      Numero(2),
-      Operador(ParenteseDir),
-      Operador(Soma),
-      Numero(4),
-    ]),
-    Ok([Numero(4), Numero(2), Operador(Div), Numero(4), Operador(Soma)]),
-  )
-  check.eq(
-    organiza_posfixo([
-      Operador(ParenteseEsq),
-      Operador(ParenteseEsq),
-      Numero(4),
-      Operador(Div),
-      Numero(2),
-      Operador(ParenteseDir),
-      Operador(Soma),
-      Numero(6),
-      Operador(ParenteseDir),
-      Operador(Mul),
-      Numero(5),
-    ]),
-    Ok([
-      Numero(4),
-      Numero(2),
-      Operador(Div),
-      Numero(6),
-      Operador(Soma),
-      Numero(5),
-      Operador(Mul),
-    ]),
-  )
-  check.eq(
-    organiza_posfixo([
-      Operador(ParenteseEsq),
-      Operador(ParenteseEsq),
-      Numero(4),
-      Operador(Div),
-      Numero(2),
-      Operador(Soma),
-      Numero(9),
-      Operador(ParenteseDir),
-      Operador(Soma),
-      Numero(6),
-      Operador(ParenteseDir),
-      Operador(Mul),
-      Numero(5),
-    ]),
-    Ok([
-      Numero(4),
-      Numero(2),
-      Operador(Div),
-      Numero(9),
-      Operador(Soma),
-      Numero(6),
-      Operador(Soma),
-      Numero(5),
-      Operador(Mul),
-    ]),
-  )
-=======
 pub fn foda_gorda(
   acumulador: Result(#(List(TipoValor), List(TipoValor)), Erros),
   elem: TipoValor,
@@ -335,40 +237,21 @@ pub fn foda_gorda(
     Operador(simbolo) -> opera_pilha(acc, Operador(simbolo))
     _ -> Ok(acc)
   }
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 }
 
-//Verifica o *valor* e a *tupla* a serem processados e empilha ou
-//desempilha e adiciona na saida os valores necessários, caso o valor seja um *numero*
-//adiciona o numero na saida (primeira tupla), caso seja um operador, deve se verificar
-//a pilha e adicionar a saida ou empilhar de acordo com a logica pos-fixa.
-pub fn processa_valor(
-  acumulador: Result(#(List(TipoValor), List(TipoValor)), Erros),
-  elem: TipoValor,
-) -> Result(#(List(TipoValor), List(TipoValor)), Erros) {
-  use acc <- result.try(acumulador)
-  case elem {
-    Numero(num) -> Ok(#(list.append(acc.0, [Numero(num)]), acc.1))
-    Operador(simbolo) -> opera_pilha(acc, Operador(simbolo))
-  }
-}
+//pub fn organiza_posfixo_examples(){
+//  check.eq(organiza_posfixo([Numero(4), Operador(Soma), Numero (6), Operador(Mul), Numero(2)]))
+//  check.eq(organiza_posfixo([Operador(ParenteseEsq), Numero(4), Operador(Soma), Numero (6), Operador(ParenteseDir), Operador(Mul), Numero(2)]))
+//  check.eq(organiza_posfixo([Operador(ParenteseEsq), Numero(4), Operador(Div), Numero(2), Operador(ParenteseDir), Operador(Soma), Numero(4)]))
+//  check.eq(organiza_posfixo([Operador(ParenteseEsq),Operador(ParenteseEsq), Numero(4), Operador(Div), Numero(2),  Operador(ParenteseDir), Operador(Soma), Numero(6), Operador(ParenteseDir), Operador(Mul), Numero(-13)])) ((4/2)+6)*-13
+//}
 
-<<<<<<< HEAD
-//opera_pilha(#([Numero(4), Numero(6), Numero(2), Operador(Div), Numero(11)],[Operador(Mul), Operador(Soma)]), Operador(Soma))
-
-//Empilha um valor dentro de uma pilha
-=======
 // TAD EMPILHA
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn empilha(lst: List(a), valor: a) -> List(a) {
   [valor, ..lst]
 }
 
-<<<<<<< HEAD
-//Desempilha um valor de dentro de uma pilha, caso a pilha esteja vazia retorna erro.
-=======
 //TAD DESEMPILHA
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn desempilha(
   lst: List(TipoValor),
 ) -> Result(#(List(TipoValor), TipoValor), Erros) {
@@ -386,17 +269,8 @@ pub fn verifica_pilha_vazia(lst: List(TipoValor)) -> Bool {
   }
 }
 
-<<<<<<< HEAD
-//Verifica o Operador passado e empilha ou desempilha dependendo do operador, também
-//adiciona os valores a lista de saida, quando um parenteses foor fechado.
-//Caso seja uma abertura de parenteses ele o empilha, caso seja um parenteses
-//sendo fechado ele desempilha até o parentese aberto e adiciona os operadores
-//dentro da lista de saida. Caso seja um operador, ele analisa o topo da pilha
-//e ve se o operador entra na pilha ou entra na saida.
-=======
 //Verifica o simbolo passado e faz as operações dentro da pilha que são respectivos
 //as regras do posfixo. Retorna ao final a tupla com a *lista de saida* e a *pilha de operadores*
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn opera_pilha(
   pilha: #(List(TipoValor), List(TipoValor)),
   simb: TipoValor,
@@ -409,67 +283,12 @@ pub fn opera_pilha(
   }
 }
 
-pub fn opera_pilha_examples() {
-  check.eq(
-    opera_pilha(
-      #([Numero(4), Numero(3)], [Operador(Soma), Operador(ParenteseEsq)]),
-      Operador(ParenteseDir),
-    ),
-    Ok(#([Numero(4), Numero(3), Operador(Soma)], [])),
-  )
-
-  check.eq(
-    opera_pilha(#([Numero(4), Numero(3)], [Operador(Soma)]), Operador(Soma)),
-    Ok(#([Numero(4), Numero(3), Operador(Soma)], [Operador(Soma)])),
-  )
-
-  check.eq(
-    opera_pilha(
-      #([Numero(4), Numero(3), Numero(8)], [Operador(Soma)]),
-      Operador(Mul),
-    ),
-    Ok(#([Numero(4), Numero(3), Numero(8)], [Operador(Mul), Operador(Soma)])),
-  )
-
-  check.eq(
-    opera_pilha(
-      #([Numero(4), Numero(3), Numero(8)], [Operador(Div)]),
-      Operador(Mul),
-    ),
-    Ok(#([Numero(4), Numero(3), Numero(8), Operador(Div)], [Operador(Mul)])),
-  )
-}
-
 //Recebe um operador e dependendo da comparação realiza o empilhamento dos operadores ou
 //a adição na saida, no final retorna uma tupla com todas as operações realizadas.
-<<<<<<< HEAD
-//Caso a pilha esteja vazia, apenas empilha o operador em questão
-=======
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn empilha_operadores(
   pilha: #(List(TipoValor), List(TipoValor)),
   simb: TipoSimbolo,
 ) -> Result(#(List(TipoValor), List(TipoValor)), Erros) {
-<<<<<<< HEAD
-  use <- bool.guard(
-    verifica_pilha_vazia(pilha.1),
-    Ok(#(pilha.0, empilha(pilha.1, Operador(simb)))),
-  )
-  use #(lista, simbolo_topo) <- result.try(desempilha(pilha.1))
-  use simbolo_top <- result.try(get_simbolo(simbolo_topo))
-  case int.compare(peso(simb), peso(simbolo_top)) {
-    order.Gt -> Ok(#(pilha.0, empilha(pilha.1, Operador(simb))))
-    order.Eq ->
-      Ok(#(
-        list.append(pilha.0, [Operador(simbolo_top)]),
-        empilha(lista, Operador(simb)),
-      ))
-    order.Lt ->
-      Ok(#(
-        list.append(pilha.0, [Operador(simbolo_top)]),
-        empilha(lista, Operador(simb)),
-      ))
-=======
   case verifica_pilha_vazia(pilha.1) {
     True -> Ok(#(pilha.0, empilha(pilha.1, Operador(simb))))
     False -> {
@@ -481,7 +300,6 @@ pub fn empilha_operadores(
         order.Lt -> Ok(#(list.append(pilha.0, [simbolo_topo]), lista))
       }
     }
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
   }
 }
 
@@ -507,38 +325,23 @@ pub fn desempilha_ate_parentese(
 
 //Função que a partir da pilha em questão faz as operações
 //em notação pós-fixa. Para cada *numero* dentro da lista
-//a função o empilha, para cada *operador*, dois *valores* são desempilhados
-//a operação é executada e o *resultado* é empilhado, então se analisa o proximo valor.
+//a função o empilha, para cada operador, dois valores são desempilhados
+//a operação é executada e o resultado é empilhado, então se analisa o proximo operador.
 //O retorno da função é um valor inteiro com um resultado.
-pub fn calc_pilha(lst: List(TipoValor)) -> Result(Int, Erros) {
-  use resultado_lista <- result.try(list.fold(lst, Ok([]), empilha_calc))
-  use valor <- result.try(
-    result.map_error(list.first(resultado_lista), fn(_) { EntradaInvalida }),
-  )
-  use valor_final <- result.try(get_valor(valor))
-  Ok(valor_final)
+pub fn calc_pilha(lst: List(TipoValor)) -> Int {
+  let assert Ok(result) = list.fold(lst, [], empilha_calc) |> list.first
+  get_valor(result)
+  |> option.unwrap(0)
 }
 
 pub fn calc_pilha_examples() {
   check.eq(
     calc_pilha([Numero(2), Numero(7), Numero(3), Operador(Mul), Operador(Soma)]),
-    Ok(23),
+    23,
   )
-  check.eq(
-    calc_pilha([
-      Numero(2),
-      Numero(7),
-      Numero(3),
-      Numero(1),
-      Operador(Mul),
-      Operador(Soma),
-    ]),
-    Error(EntradaInvalida),
-  )
-
   check.eq(
     calc_pilha([Numero(-2), Numero(7), Numero(3), Operador(Mul), Operador(Soma)]),
-    Ok(19),
+    19,
   )
   check.eq(
     calc_pilha([
@@ -548,11 +351,11 @@ pub fn calc_pilha_examples() {
       Operador(Mul),
       Operador(Soma),
     ]),
-    Ok(-23),
+    -23,
   )
   check.eq(
     calc_pilha([Numero(2), Numero(7), Numero(3), Operador(Mul), Operador(Div)]),
-    Ok(0),
+    0,
   )
   check.eq(
     calc_pilha([
@@ -568,7 +371,7 @@ pub fn calc_pilha_examples() {
       Numero(3),
       Operador(Div),
     ]),
-    Ok(0),
+    0,
   )
   //Arredondamento do gleam faz ficar 0
   check.eq(
@@ -581,52 +384,25 @@ pub fn calc_pilha_examples() {
       Operador(Mul),
       Operador(Soma),
     ]),
-    Ok(128),
-  )
-
-  check.eq(
-    calc_pilha([
-      Numero(2),
-      Numero(7),
-      Numero(3),
-      Operador(Mul),
-      Numero(6),
-      Operador(ParenteseDir),
-      Operador(Soma),
-    ]),
-    Error(EntradaInvalida),
+    128,
   )
 }
 
-//Empilha os valores numericos analisando a lista pos-fixa e quando acha um operador realiza a operação
-//nos dois valores logo anteriores do operador.
-pub fn empilha_calc(
-  acumulador: Result(List(TipoValor), Erros),
-  elem: TipoValor,
-) -> Result(List(TipoValor), Erros) {
-  use acc <- result.try(acumulador)
+//Empilha os valores da lista dos valores pós-fixos
+//e realiza os calculos se encontrar um operador.
+pub fn empilha_calc(acc: List(TipoValor), elem: TipoValor) -> List(TipoValor) {
   case elem {
-    Numero(valor) -> Ok(list.append(acc, [Numero(valor)]))
+    Numero(valor) -> list.append(acc, [Numero(valor)])
     Operador(simbolo) ->
       case acc {
-        [primeiro, segundo, terceiro] -> {
-          use desempilhado <- result.try(desempilha_calcula(
-            segundo,
-            terceiro,
-            simbolo,
-          ))
-          Ok([primeiro, desempilhado])
-        }
-        [primeiro, segundo] -> {
-          use desempilhado <- result.try(desempilha_calcula(
-            primeiro,
-            segundo,
-            simbolo,
-          ))
-          Ok([desempilhado])
-        }
-        _ -> Error(EntradaInvalida)
+        [primeiro, segundo, terceiro] -> [
+          primeiro,
+          desempilha_calcula(segundo, terceiro, simbolo),
+        ]
+        [primeiro, segundo] -> [desempilha_calcula(primeiro, segundo, simbolo)]
+        _ -> acc
       }
+    _ -> []
   }
 }
 
@@ -635,14 +411,14 @@ pub fn desempilha_calcula(
   num1: TipoValor,
   num2: TipoValor,
   operador: TipoSimbolo,
-) -> Result(TipoValor, Erros) {
-  use numer1 <- result.try(get_valor(num1))
-  use numer2 <- result.try(get_valor(num2))
+) -> TipoValor {
+  let assert Some(numer1) = get_valor(num1)
+  let assert Some(numer2) = get_valor(num2)
   case operador {
-    Soma -> Ok(Numero(numer1 + numer2))
-    Sub -> Ok(Numero(numer1 - numer2))
-    Mul -> Ok(Numero(numer1 * numer2))
-    Div -> Ok(Numero(numer1 / numer2))
-    _ -> Error(EntradaInvalida)
+    Soma -> Numero(numer1 + numer2)
+    Sub -> Numero(numer1 - numer2)
+    Mul -> Numero(numer1 * numer2)
+    Div -> Numero(numer1 / numer2)
+    _ -> NoneTp
   }
 }
