@@ -1,18 +1,10 @@
-<<<<<<< HEAD
 import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/order
 import gleam/result
-=======
-import gleam/int
-import gleam/list
-import gleam/option.{type Option, None, Some}
-import gleam/order
-import gleam/result
-import gleam/string
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 import sgleam/check
+import gleam/string
 
 pub type Erros {
   //Caso de parenteses dispostos de forma incorreta
@@ -101,9 +93,9 @@ pub fn concatena_valores(
   use acc <- result.try(acumulador)
   case acc {
     [] -> Ok(list.append([elem], acc))
-    [primeiro] -> agrupa_valores(acc, elem)
-    [primeiro, segundo] -> agrupa_valores(acc, elem)
-    [primeiro, segundo, ..resto] -> agrupa_valores(acc, elem)
+    [_] -> agrupa_valores(acc, elem)
+    [_, _] -> agrupa_valores(acc, elem)
+    [_, _, ..] -> agrupa_valores(acc, elem)
   }
 }
 
@@ -236,7 +228,6 @@ pub fn organiza_posfixo(lst: List(TipoValor)) -> Result(List(TipoValor), Erros) 
   Ok(list.append(saida, pilha))
 }
 
-<<<<<<< HEAD
 pub fn organiza_posfixo_examples() {
   check.eq(
     organiza_posfixo([
@@ -324,18 +315,6 @@ pub fn organiza_posfixo_examples() {
       Operador(Mul),
     ]),
   )
-=======
-pub fn foda_gorda(
-  acumulador: Result(#(List(TipoValor), List(TipoValor)), Erros),
-  elem: TipoValor,
-) -> Result(#(List(TipoValor), List(TipoValor)), Erros) {
-  use acc <- result.try(acumulador)
-  case elem {
-    Numero(num) -> Ok(#(list.append(acc.0, [Numero(num)]), acc.1))
-    Operador(simbolo) -> opera_pilha(acc, Operador(simbolo))
-    _ -> Ok(acc)
-  }
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 }
 
 //Verifica o *valor* e a *tupla* a serem processados e empilha ou
@@ -353,22 +332,13 @@ pub fn processa_valor(
   }
 }
 
-<<<<<<< HEAD
-//opera_pilha(#([Numero(4), Numero(6), Numero(2), Operador(Div), Numero(11)],[Operador(Mul), Operador(Soma)]), Operador(Soma))
 
 //Empilha um valor dentro de uma pilha
-=======
-// TAD EMPILHA
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn empilha(lst: List(a), valor: a) -> List(a) {
   [valor, ..lst]
 }
 
-<<<<<<< HEAD
 //Desempilha um valor de dentro de uma pilha, caso a pilha esteja vazia retorna erro.
-=======
-//TAD DESEMPILHA
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn desempilha(
   lst: List(TipoValor),
 ) -> Result(#(List(TipoValor), TipoValor), Erros) {
@@ -386,17 +356,12 @@ pub fn verifica_pilha_vazia(lst: List(TipoValor)) -> Bool {
   }
 }
 
-<<<<<<< HEAD
 //Verifica o Operador passado e empilha ou desempilha dependendo do operador, também
 //adiciona os valores a lista de saida, quando um parenteses foor fechado.
 //Caso seja uma abertura de parenteses ele o empilha, caso seja um parenteses
 //sendo fechado ele desempilha até o parentese aberto e adiciona os operadores
 //dentro da lista de saida. Caso seja um operador, ele analisa o topo da pilha
 //e ve se o operador entra na pilha ou entra na saida.
-=======
-//Verifica o simbolo passado e faz as operações dentro da pilha que são respectivos
-//as regras do posfixo. Retorna ao final a tupla com a *lista de saida* e a *pilha de operadores*
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn opera_pilha(
   pilha: #(List(TipoValor), List(TipoValor)),
   simb: TipoValor,
@@ -442,15 +407,11 @@ pub fn opera_pilha_examples() {
 
 //Recebe um operador e dependendo da comparação realiza o empilhamento dos operadores ou
 //a adição na saida, no final retorna uma tupla com todas as operações realizadas.
-<<<<<<< HEAD
 //Caso a pilha esteja vazia, apenas empilha o operador em questão
-=======
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
 pub fn empilha_operadores(
   pilha: #(List(TipoValor), List(TipoValor)),
   simb: TipoSimbolo,
 ) -> Result(#(List(TipoValor), List(TipoValor)), Erros) {
-<<<<<<< HEAD
   use <- bool.guard(
     verifica_pilha_vazia(pilha.1),
     Ok(#(pilha.0, empilha(pilha.1, Operador(simb)))),
@@ -469,19 +430,6 @@ pub fn empilha_operadores(
         list.append(pilha.0, [Operador(simbolo_top)]),
         empilha(lista, Operador(simb)),
       ))
-=======
-  case verifica_pilha_vazia(pilha.1) {
-    True -> Ok(#(pilha.0, empilha(pilha.1, Operador(simb))))
-    False -> {
-      use #(lista, simbolo_topo) <- result.try(desempilha(pilha.1))
-      use simbolo_top <- result.try(get_simbolo(simbolo_topo))
-      case int.compare(peso(simb), peso(simbolo_top)) {
-        order.Gt -> Ok(#(pilha.0, empilha(pilha.1, Operador(simb))))
-        order.Eq -> Ok(#(list.append(pilha.0, [Operador(simb)]), pilha.1))
-        order.Lt -> Ok(#(list.append(pilha.0, [simbolo_topo]), lista))
-      }
-    }
->>>>>>> 678889622c7be93c4ff5a9a37ea1642e8681e839
   }
 }
 
